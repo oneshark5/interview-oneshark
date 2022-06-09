@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    // 自定义链表
+    /* 
+    包含两个类，Node 类用来表示节 点，LinkedList 类提供了插入节点、删除节点、显 示列表元素的方法
+
+    */
+    // Node类
+    function Node(element) {
+      this.element = element //保存节点上的数据
+      this.next = null // 保存指向下一个节点的链接;初始化为null，当有新元素插入时，指向新元素
+    }
+    // LList类：对链表的操作方法
+    function LList() {
+      this.head = new Node('head')
+      this.find = find; // 查找节点
+      this.insert = insert;
+      this.findPrevious = findPrevious;
+      this.remove = remove;
+      this.display = display;
+    }
+    // find方法，
+    function find(item) {
+      let curNode = this.head
+      while (curNode.element !== item) {
+        curNode = curNode.next
+      }
+      return curNode
+    }
+    // insert方法,插入节点，（这里是在一个已知节点后面插入元素）
+    function insert(newElement, item) {
+      let newNode = new Node(newElement)
+      let current = this.find(item)
+      current.next = newNode
+      newNode.next = current.next.next
+    }
+    // display显示链表元素---打印输出
+    function display() {
+      // 当前节点不为null就打印输出
+      let curNode = this.head
+      while(curNode.next !== null){
+        console.log(curNode.next.element);
+        curNode = curNode.next
+      }
+    }
+    // remove删除节点:先找到待删除节点的前一节点，然后再对节点进行删除
+    function findPrevious(item) {
+      // 判断下一个节点不是待删除元素，就找到了待删除元素的前一节点
+      let curNode = this.head
+      while(curNode !== null && curNode.next.element !== item){
+        curNode = curNode.next
+      }
+      return curNode
+    }
+    function remove(item) {
+      let prevNode = this.findPrevious(item)
+      if(prevNode.next !== null){
+        prevNode.next = prevNode.next.next
+      }
+    }
+
+    // 测试代码
+    let cities = new LList()
+    // 插入元素
+    cities.insert("Beijing", "head")
+    cities.insert("Tianjin", "Beijing")
+    cities.insert("Yantai", "Tianjin")
+    cities.insert("Xian", "Yantai")
+    cities.display()
+    console.log('==========');
+    cities.remove("Xian")
+    cities.display()
+  </script>
+</body>
+</html>
