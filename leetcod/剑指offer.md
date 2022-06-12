@@ -131,3 +131,11 @@ var missingNumber = function(nums) {
     return left
 };
 ```
+
+# 2.链表
+剑指 Offer 06. 从尾到头打印链表
+剑指 Offer 18. 删除链表的节点
+剑指 Offer 24. 反转链表
+剑指 Offer 35. 复杂链表的复制
+剑指 Offer 36. 二叉搜索树与双向链表
+剑指 Offer 52. 两个链表的第一个公共节点
