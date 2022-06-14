@@ -133,9 +133,149 @@ var missingNumber = function(nums) {
 ```
 
 # 2.链表
+## 常用方法
+- 双指针
+- 重点：
+  - 移除元素节点：cur.next = cur.next.next;
+  - 添加节点：cur.next = newNode;   newNode.next = cur.next.next;
+  - 环形链表
+
 剑指 Offer 06. 从尾到头打印链表
+方法一：转换成数组
+先转成数组，再对数组进行反转
+```js
+var reversePrint = function(head) {
+    const arr = []
+    while(head){
+        arr.push(head.val)
+        head = head.next
+    }
+    return arr.reverse()
+};
+```
+方法二：先反转链表，再加入到数组返回
+```js
+var reversePrint = function(head) {
+    let [cur, pre] = [head, null]
+    while(cur !== null){
+        let temp = cur.next
+        cur.next = pre;
+        pre = cur
+        cur = temp
+    }
+    // 对反转后的链表进行遍历
+    const res = []
+    while(pre){
+        res.push(pre.val)
+        pre = pre.next
+    }
+    return res
+};
+```
 剑指 Offer 18. 删除链表的节点
+🦈理解：
+设置虚拟头节点newNode，指向head，然后让当前节点curNode为虚拟头节点，该节点仅用于删除节点操作，最后返回的还是newNode⭐
+```js
+var deleteNode = function(head, val) {
+    // 设置虚拟头节点，易于遍历
+    let newNode = new ListNode(0)
+    newNode.next = head;
+    let curNode = newNode;
+    while(curNode && curNode.next){
+        if(curNode.next.val === val){
+            curNode.next = curNode.next.next;
+        }else{
+            curNode = curNode.next;
+        }
+    }
+    return newNode.next;
+};
+```
 剑指 Offer 24. 反转链表
+反转一整条链表
+```js
+var reverseList = function(head) {
+    // 反转链表
+    let [cur, pre] = [head, null]
+    while(cur){
+        // 反转处理
+        let temp = cur.next;
+        cur.next = pre
+        // 理解为更新节点
+        pre = cur
+        cur = temp
+    }
+    return pre
+};
+```
 剑指 Offer 35. 复杂链表的复制
+🦈创建的新节点，就是所复制的节点，然后我们在这个节点的基础上去复制指针就可以。
+思路：
+- 第一次遍历，复制节点值，key和val都为链表的值
+- 第二次遍历，复制节点关系，包含next指针和random指针
+```js
+var copyRandomList = function(head) {
+    // map映射
+    const map = new Map();
+    // 第一次遍历
+    let curNode = head;
+    while(curNode){
+        // ???这里为什么加入的是new Node(curNode.val)？？？新节点
+        map.set(curNode, new Node(curNode.val));
+        curNode = curNode.next;
+    }
+    // 第二次遍历，复制指针关系
+    curNode = head;
+    while(curNode){
+        map.get(curNode).next = map.get(curNode.next) || null // next指针
+        map.get(curNode).random = map.get(curNode.random) || null // random指针
+        curNode = curNode.next
+    }
+    return map.get(head)
+};
+```
 剑指 Offer 36. 二叉搜索树与双向链表
-剑指 Offer 52. 两个链表的第一个公共节点
+思路：采用了递归中序遍历，就在根节点（中节点）时，进行指针处理就可
+```js
+var treeToDoublyList = function(root) {
+    // 排序的循环双向链表:第一个节点的前驱是最后一个节点，最后一个节点的后继是第一个节点。
+    // 不熟
+    // 递归中序遍历
+    const dfs = cur => {
+        if(!cur) return
+        dfs(cur.left)
+        if(!pre){
+            head = cur;
+        }else{
+            // pre有值，更新指针，双向连接
+            pre.right = cur;
+            cur.left = pre
+        }
+        pre = cur
+        dfs(cur.right)
+    }
+
+    let pre, head;
+    if(!root) return;
+    dfs(root)
+    // 首尾相连---最后跳出循环时，pre为最后一个节点为最右边的
+    head.left = pre;
+    pre.right = head;
+    return head;
+};
+```
+剑指 Offer 52. 两个链表的第一个公共节点 ---》就是链表相交
+```js
+var getIntersectionNode = function(headA, headB) {
+    /**
+    思路：两个链表互相遍历  (a+c) + b = (b+c) + a   两链表肯定会相交
+    - 若
+     */
+    let [nodeA, nodeB] = [headA, headB]
+    while(nodeA !== nodeB){
+        nodeA = nodeA===null ? headB : nodeA.next;
+        nodeB = nodeB===null ? headA : nodeB.next;
+    }
+    return nodeA;
+};
+```
