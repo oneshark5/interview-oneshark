@@ -481,6 +481,8 @@ function Array_set(data) {
 }
 ```
 
+
+
 ## 2. BOM和DOM
 
 ### 基础知识点
@@ -513,3 +515,940 @@ function Array_set(data) {
 
 ### 🦈问题1：说说你对BOM的理解，常见的BOM对象你了解哪些？
 
+[参考](https://vue3js.cn/interview/JavaScript/BOM.html#%E4%B8%80%E3%80%81%E6%98%AF%E4%BB%80%E4%B9%88)
+
+![img](JsImg/3e191c40-8089-11eb-85f6-6fac77c0c9b3.png)
+
+### 🦈问题2：DOM常见的操作有哪些？
+
+**![img](JsImg/a89c99a0-7fdc-11eb-ab90-d9ae814b240d.png)**
+**操作**
+
+`React`等框架出现后，我们通过操作数据来控制`DOM`（绝大多数时候），越来越少的去直接操作`DOM`。
+
+- 创建节点
+- 查询节点
+- 更新节点
+- 添加节点
+- 删除节点
+
+**创建节点**
+
+* createElement
+
+  创建新元素，接受一个参数，即要创建元素的标签名
+
+```js
+const divEl = document.createElement("div");
+```
+
+- createTextNode
+
+  创建一个文本节点
+
+```js
+const textEl = document.createTextNode("content");
+```
+
+- createDocumentFragment
+
+  用来创建一个文档碎片，它表示一种轻量级的文档，主要是用来存储临时节点，然后把文档碎片的内容一次性添加到`DOM`中
+
+```js
+const fragment = document.createDocumentFragment();
+```
+
+​	当请求把一个`DocumentFragment` 节点插入文档树时，插入的不是 `DocumentFragment`自身，而是它的所有子孙节点
+
+- createAttribute
+
+  创建属性节点，可以是自定义属性
+
+```js
+const dataAttribute = document.createAttribute('custom');
+consle.log(dataAttribute);
+```
+
+**获取节点**
+
+- querySelector
+
+传入任何有效的`css` 选择器，即可选中单个 `DOM`元素（首个）：
+
+```js
+document.querySelector('.element')
+document.querySelector('#element')
+document.querySelector('div')
+document.querySelector('[name="username"]')
+document.querySelector('div + p > span')
+```
+
+如果页面上没有指定的元素时，返回 `null`
+
+- querySelectorAll
+
+返回一个包含节点子树内所有与之相匹配的`Element`节点列表，如果没有相匹配的，则返回一个空节点列表
+
+```js
+const notLive = document.querySelectorAll("p");
+```
+
+需要注意的是，该方法返回的是一个 `NodeList`的静态实例，它是一个静态的“快照”，而非“实时”的查询
+
+关于获取`DOM`元素的方法还有如下，就不一一述说
+
+```js
+document.getElementById('id属性值');返回拥有指定id的对象的引用
+document.getElementsByClassName('class属性值');返回拥有指定class的对象集合
+document.getElementsByTagName('标签名');返回拥有指定标签名的对象集合
+document.getElementsByName('name属性值'); 返回拥有指定名称的对象结合
+document/element.querySelector('CSS选择器');  仅返回第一个匹配的元素
+document/element.querySelectorAll('CSS选择器');   返回所有匹配的元素
+document.documentElement;  获取页面中的HTML标签
+document.body; 获取页面中的BODY标签
+document.all[''];  获取页面中的所有元素节点的对象集合型
+```
+
+除此之外，每个`DOM`元素还有`parentNode`、`childNodes`、`firstChild`、`lastChild`、`nextSibling`、`previousSibling`属性，关系图如下图所示
+
+![img](JsImg/c100f450-7fdc-11eb-ab90-d9ae814b240d.png)
+
+**更新节点**
+
+- innerHTML
+
+不但可以修改一个`DOM`节点的文本内容，还可以直接通过`HTML`片段修改`DOM`节点内部的子树
+
+```js
+// 获取<p id="p">...</p >
+var p = document.getElementById('p');
+// 设置文本为abc:
+p.innerHTML = 'ABC'; // <p id="p">ABC</p >
+// 设置HTML:
+p.innerHTML = 'ABC <span style="color:red">RED</span> XYZ';
+// <p>...</p >的内部结构已修改
+```
+
+- innerText、textContent
+
+自动对字符串进行`HTML`编码，保证无法设置任何`HTML`标签
+
+```js
+// 获取<p id="p-id">...</p >
+var p = document.getElementById('p-id');
+// 设置文本:
+p.innerText = '<script>alert("Hi")</script>';
+// HTML被自动编码，无法设置一个<script>节点:
+// <p id="p-id">&lt;script&gt;alert("Hi")&lt;/script&gt;</p >
+```
+
+两者的区别在于读取属性时，`innerText`不返回隐藏元素的文本，而`textContent`返回所有文本
+
+- style
+
+`DOM`节点的`style`属性对应所有的`CSS`，可以直接获取或设置。遇到`-`需要转化为驼峰命名。
+
+```js
+// 获取<p id="p-id">...</p >
+const p = document.getElementById('p-id');
+// 设置CSS:
+p.style.color = '#ff0000';
+p.style.fontSize = '20px'; // 驼峰命名
+p.style.paddingTop = '2em';
+```
+
+**添加节点**
+
+- innerHTML
+
+如果这个DOM节点是空的，例如，`<div></div>`，那么，直接使用`innerHTML = '<span>child</span>'`就可以修改`DOM`节点的内容，相当于添加了新的`DOM`节点
+
+如果这个DOM节点不是空的，那就不能这么做，因为`innerHTML`会直接替换掉原来的所有子节点。
+
+- appendChild
+
+把一个子节点添加到父节点的最后一个子节点
+
+举个例子
+
+```js
+<!-- HTML结构 -->
+<p id="js">JavaScript</p >
+<div id="list">
+    <p id="java">Java</p >
+    <p id="python">Python</p >
+    <p id="scheme">Scheme</p >
+</div>
+```
+
+添加一个`p`元素
+
+```js
+const js = document.getElementById('js')
+js.innerHTML = "JavaScript"
+const list = document.getElementById('list');
+list.appendChild(js);
+```
+
+现在`HTML`结构变成了下面
+
+```js
+<!-- HTML结构 -->
+<div id="list">
+    <p id="java">Java</p >
+    <p id="python">Python</p >
+    <p id="scheme">Scheme</p >
+    <p id="js">JavaScript</p >  <!-- 添加元素 -->
+</div>
+```
+
+上述代码中，我们是获取`DOM`元素后再进行添加操作，这个`js`节点是已经存在当前文档树中，因此这个节点首先会从原先的位置删除，再插入到新的位置
+
+如果动态添加新的节点，则先创建一个新的节点，然后插入到指定的位置
+
+```js
+const list = document.getElementById('list'),
+const haskell = document.createElement('p');
+haskell.id = 'haskell';
+haskell.innerText = 'Haskell';
+list.appendChild(haskell);
+```
+
+- insertBefore
+
+把子节点插入到指定的位置，使用方法如下：
+
+```js
+parentElement.insertBefore(newElement, referenceElement)
+```
+
+子节点会插入到`referenceElement`之前
+
+- setAttribute
+
+在指定元素中添加一个属性节点，如果元素中已有该属性改变属性值
+
+```js
+const div = document.getElementById('id')
+div.setAttribute('class', 'white');//第一个参数属性名，第二个参数属性值。
+```
+
+- 删除节点
+
+删除一个节点，首先要获得该节点本身以及它的父节点，然后，调用父节点的`removeChild`把自己删掉
+
+```js
+// 拿到待删除节点:
+const self = document.getElementById('to-be-removed');
+// 拿到父节点:
+const parent = self.parentElement;
+// 删除:
+const removed = parent.removeChild(self);
+removed === self; // true
+```
+
+删除后的节点虽然不在文档树中了，但其实它还在内存中，可以随时再次被添加到别的位置。
+
+## 总结面试官系列
+
+[参考地址](https://vue3js.cn/interview/)
+
+### 问题1：数组的常用方法有哪些？
+
+![img](JsImg/5842e560-67b6-11eb-85f6-6fac77c0c9b3.png)
+
+**操作方法**
+
+⭐⭐⭐需要留意的是哪些方法会对原数组产生影响，哪些方法不会。
+
+* 增
+
+  `push() unshift() splice() concat()`；只有cancat()方法不会对原数组产生影响。
+
+  - push() 方法接收任意数量的参数，并将它们添加到数组末尾，返回数组的最新长度
+
+    ```js
+    let colors = []; // 创建一个数组
+    let count = colors.push("red", "green"); // 推入两项
+    console.log(count) // 2
+    ```
+
+  - unshift() unshift()在数组开头添加任意多个值，然后返回新的数组长度
+
+  - splice() 传入三个参数，分别是开始位置、0（要删除的元素数量）、插入的元素，返回空数组
+
+  - concat() 首先会创建一个当前数组的副本，然后再把它的参数添加到副本末尾，最后返回这个新构建的数组，不会影响原始数组。---》生成的数组还是一维数组。
+
+* 删
+
+  `pop() shift() splice() slice()`；其中slice()方法不影响原数组。
+
+  - pop() 用于删除数组的最后一项，同时减少数组的`length` 值，返回被删除的项。
+  - shift() 用于删除数组的第一项，同时减少数组的`length` 值，返回被删除的项。
+  - splice() 传入两个参数，分别是开始位置，删除元素的数量，返回包含删除元素的数组。
+  - slice() slice() 用于创建一个包含原有数组中一个或多个元素的新数组，不会影响原始数组。接收两个参数，表示要复制的位置。`[)`左闭右开。
+
+* 改
+  修改原来数组的内容，常用`splice()`
+
+  `splice() `传入三个参数，分别是开始位置，要删除元素的数量，要插入的任意多个元素，返回删除元素的数组，对原数组产生影响
+
+* 查
+  即查找元素，返回元素索引值或者元素值。
+
+  - indexOf(value) 返回要查找的元素在数组中的位置，如果没找到则返回 -1
+
+  - includes(value) 返回要查找的元素在数组中的位置，找到返回`true`，否则`false`
+
+  - find() 返回第一个匹配的元素
+
+    ```js
+    const people = [
+        {
+            name: "Matt",
+            age: 27
+        },
+        {
+            name: "Nicholas",
+            age: 29
+        }
+    ];
+    people.find((element, index, array) => element.age < 28) // // {name: "Matt", age: 27}
+    ```
+
+**排序方法**
+
+- reverse() 将数组元素方向反转。
+
+  ```js
+  let values = [1, 2, 3, 4, 5];
+  values.reverse();
+  alert(values); // 5,4,3,2,1
+  ```
+
+- sort()  升序、降序
+
+**迭代方法**
+都不改变原数组
+
+- some() 对数组每一项都运行传入的测试函数，如果至少有1个元素返回 true ，则这个方法返回 true。
+
+- every() 对数组每一项都运行传入的测试函数，如果所有元素都返回 true ，则这个方法返回 true
+
+- forEach() 对数组每一项都运行传入的函数，没有返回值
+
+  ```js
+  let numbers = [1, 2, 3, 4, 5, 4, 3, 2, 1];
+  numbers.forEach((item, index, array) => {
+      // 执行某些操作
+  });
+  ```
+
+- filter() 对数组每一项都运行传入的函数，函数返回 `true` 的项会组成数组之后返回。
+
+- map() 对数组每一项都运行传入的函数，返回由每次函数调用的结果构成的数组。
+
+  ```js
+  let numbers = [1, 2, 3, 4, 5, 4, 3, 2, 1];
+  let mapResult = numbers.map((item, index, array) => item * 2);
+  console.log(mapResult) // 2,4,6,8,10,8,6,4,2
+  ```
+
+### 问题2：JavaScript字符串的常用方法有哪些？
+
+![img](JsImg/ceb6ebc0-65c1-11eb-ab90-d9ae814b240d.png)
+
+**操作方法**
+
+归纳为增、删、改、查，字符串的特点是一旦创建了，就不可变。
+
+* 增
+  创建字符串的一个副本，再进行操作。
+  除了常用`+`以及`${}`进行字符串拼接之外，还可通过`concat`。
+
+  - `concat()` 用于将一个或多个字符串拼接成一个新字符串
+
+    ```js
+    let stringValue = "hello ";
+    let result = stringValue.concat("world");
+    console.log(result); // "hello world"
+    console.log(stringValue); // "hello"
+    ```
+
+* 删
+
+  创建字符串的一个副本，再进行操作.
+
+  - slice()
+
+  - substr()
+
+  - substring()
+    都返回调用它们的字符串的一个子字符串，而且都接收一或两个参数。
+    一个参数表示截取从该索引到末尾，两个参数，表示截取该区间内的元素。除了`substr()`是左闭右闭，其他都是左闭右开。
+
+    ```js
+    let stringValue = "hello world";
+    console.log(stringValue.slice(3)); // "lo world"
+    console.log(stringValue.substring(3)); // "lo world"
+    console.log(stringValue.substr(3)); // "lo world"
+    console.log(stringValue.slice(3, 7)); // "lo w"
+    console.log(stringValue.substring(3,7)); // "lo w"
+    console.log(stringValue.substr(3, 7)); // "lo worl"
+    ```
+
+* 改
+
+  不是改变原字符串，创建字符串的一个副本，再进行操作。
+
+  常见的有：
+
+  - trim()、trimLeft()、trimRight() 删除前、后或前后所有空格符，再返回新的字符串；⭐注意，只处理前后的空格，中间的空格不处理。
+
+    ```js
+    let stringValue = " hello world ";
+    let trimmedStringValue = stringValue.trim();
+    console.log(stringValue); // " hello world "
+    console.log(trimmedStringValue); // "hello world"
+    ```
+
+  - repeat() 接收一个整数参数，表示要将字符串复制多少次，然后返回拼接所有副本后的结果
+
+    ```js
+    let stringValue = "na ";
+    let copyResult = stringValue.repeat(2) // na na 
+    ```
+
+  - padStart()、padEnd() 复制字符串，如果小于指定长度，则在相应一边填充字符，直至满足长度条件.
+
+    ```js
+    let stringValue = "foo";
+    console.log(stringValue.padStart(6)); // " foo"
+    console.log(stringValue.padStart(9, ".")); // "......foo"
+    ```
+
+  - toLowerCase()、 toUpperCase() 大小写转化
+
+    ```js
+    let stringValue = "hello world";
+    console.log(stringValue.toUpperCase()); // "HELLO WORLD"
+    console.log(stringValue.toLowerCase()); // "hello world"
+    ```
+
+* 查
+
+  除了通过索引的方式获取字符串的值，还可通过：
+
+  - chatAt() 返回给定索引位置的字符，由传给方法的整数参数指定
+
+    ```js
+    let message = "abcde";
+    console.log(message.charAt(2)); // "c"
+    ```
+
+  - indexOf() 从字符串开头去搜索传入的字符串，并返回位置（如果没找到，则返回 -1 ）
+
+    ```js
+    let stringValue = "hello world";
+    console.log(stringValue.indexOf("o")); // 4
+    ```
+
+  - startWith() 检查是否以指定字符串开头。
+
+  - includes() 从字符串中搜索传入的字符串，并返回一个表示是否包含的布尔值
+
+    ```js
+    let message = "foobarbaz";
+    console.log(message.startsWith("foo")); // true
+    console.log(message.startsWith("bar")); // false
+    console.log(message.includes("bar")); // true
+    console.log(message.includes("qux")); // false
+    ```
+
+**转换方法**
+
+`split` 把字符串按照指定的分割符，拆分成数组中的每一项
+
+```js
+let str = "12+23+34"
+let arr = str.split("+") // [12,23,34]
+```
+
+**模板匹配方法**
+
+针对正则表达式，字符串设计了几个方法：
+
+- match() 接收一个参数，可以是一个正则表达式字符串，也可以是一个`RegExp`对象，返回数组.
+
+  ```js
+  let text = "cat, bat, sat, fat";
+  let pattern = /.at/;
+  let matches = text.match(pattern);
+  console.log(matches[0]); // "cat"
+  ```
+
+- search() 接收一个参数，可以是一个正则表达式字符串，也可以是一个`RegExp`对象，找到则返回匹配索引，否则返回 -1
+
+  ```js
+  let text = "cat, bat, sat, fat";
+  let pos = text.search(/at/);
+  console.log(pos); // 1
+  ```
+
+- replace() 接收两个参数，第一个参数为匹配的内容，第二个参数为替换的元素（可用函数）;==替换第一个元素==
+
+  ```js
+  let text = "cat, bat, sat, fat";
+  let result = text.replace("at", "ond");
+  console.log(result); // "cond, bat, sat, fat"
+  ```
+
+### 问题3：谈谈 JavaScript 中的类型转换机制
+
+![img](JsImg/2abd00a0-6692-11eb-85f6-6fac77c0c9b3.png)
+
+**为什么会出现类型转换**
+
+声明的时候数据类型不确定，只有到运行期间才会确定当前类型。
+
+但是各种运算符对数据类型是有要求的，如果运算子的类型与预期不符合，就会触发类型转换机制。
+
+常见的类型转换有：
+
+- 强制转换（显示转换）
+- 自动转换（隐式转换）
+
+**显示转换**
+
+常见方法`Number()`、`parseInt()`、`String()`、`Boolean()`、
+
+- Number()
+
+  将任意类型的值转化为数值。
+
+  转换规则
+
+  ![img](JsImg/915b7300-6692-11eb-ab90-d9ae814b240d.png)
+
+  ```js
+  Number(324) // 324
+  
+  // 字符串：如果可以被解析为数值，则转换为相应的数值
+  Number('324') // 324
+  
+  // 字符串：如果不可以被解析为数值，返回 NaN
+  Number('324abc') // NaN
+  
+  // 空字符串转为0
+  Number('') // 0
+  
+  // 布尔值：true 转成 1，false 转成 0
+  Number(true) // 1
+  Number(false) // 0
+  
+  // undefined：转成 NaN
+  Number(undefined) // NaN
+  
+  // null：转成0
+  Number(null) // 0
+  
+  // 对象：通常转换成NaN(除了只包含单个数值的数组)
+  Number({a: 1}) // NaN
+  Number([1, 2, 3]) // NaN
+  Number([5]) // 5
+  ```
+
+  `Number`转换的时候是很严格的，只要有一个字符无法转成数值，整个字符串就会被转为`NaN`
+
+- parseInt()
+
+  `parseInt`相比`Number`，就没那么严格了，`parseInt`函数逐个解析字符，遇到不能转换的字符就停下来。
+
+  ```js
+  parseInt('32a3') //32
+  ```
+
+- String()
+
+  可以将任意类型的值转化成字符串。
+
+  转换规则图：
+
+  ![img](JsImg/48dd8eb0-6692-11eb-85f6-6fac77c0c9b3.png)
+
+  ```js
+  // 数值：转为相应的字符串
+  String(1) // "1"
+  
+  //字符串：转换后还是原来的值
+  String("a") // "a"
+  
+  //布尔值：true转为字符串"true"，false转为字符串"false"
+  String(true) // "true"
+  
+  //undefined：转为字符串"undefined"
+  String(undefined) // "undefined"
+  
+  //null：转为字符串"null"
+  String(null) // "null"
+  
+  //对象
+  String({a: 1}) // "[object Object]"
+  String([1, 2, 3]) // "1,2,3"
+  ```
+
+- Boolean()
+
+  可以将任意类型的值转为布尔值，转换规则如下：
+
+  ![img](JsImg/53bdad10-6692-11eb-ab90-d9ae814b240d.png)
+
+  ```js
+  Boolean(undefined) // false
+  Boolean(null) // false
+  Boolean(0) // false
+  Boolean(NaN) // false
+  Boolean('') // false
+  Boolean({}) // true
+  Boolean([]) // true
+  Boolean(new Boolean(false)) // true
+  ```
+
+**隐式转换**
+
+两种发生隐式转换的场景
+
+- 比较运算（`==`、`!=`、`>`、`<`）、`if`、`while`需要布尔值地方
+- 算术运算（`+`、`-`、`*`、`/`、`%`）
+
+除了上面的场景，还要求运算符两边的操作数不是同一类型
+
+* **自动转换为布尔值**
+
+  在需要布尔值的地方，就会将非布尔值的参数自动转为布尔值，系统内部会调用`Boolean`函数
+
+  可以得出个小结：
+
+  - undefined
+  - null
+  - false
+  - +0
+  - -0
+  - NaN
+  - ""
+
+  除了上面几种会被转化成`false`，其他都换被转化成`true`
+
+* **自动转换成字符串**
+
+  遇到预期为字符串的地方，就会将非字符串的值自动转为字符串
+
+  ==具体规则是：==先将复合类型的值转为原始类型的值，再将原始类型的值转为字符串
+
+  常发生在`+`运算中，一旦存在字符串，则会进行字符串拼接操作
+
+  ```js
+  '5' + 1 // '51'
+  '5' + true // "5true"
+  '5' + false // "5false"
+  '5' + {} // "5[object Object]"
+  '5' + [] // "5"
+  '5' + function (){} // "5function (){}"
+  '5' + undefined // "5undefined"
+  '5' + null // "5null"
+  ```
+
+* **自动转换成数值**
+
+  除了`+`有可能把运算子转为字符串，其他运算符都会把运算子自动转成数值
+
+  ```js
+  '5' - '2' // 3
+  '5' * '2' // 10
+  true - 1  // 0
+  false - 1 // -1
+  '1' - 1   // 0
+  '5' * []    // 0
+  false / '5' // 0
+  'abc' - 1   // NaN
+  null + 1 // 1
+  undefined + 1 // NaN
+  ```
+
+  `null`转为数值时，值为`0` 。`undefined`转为数值时，值为`NaN`
+
+### 问题4：== 和 ===区别，分别在什么情况使用
+
+![img](JsImg/51b208f0-68df-11eb-85f6-6fac77c0c9b3.png)
+
+**等于操作符`==`**
+
+操作符（==）在比较中会先进行类型转换，再确定操作数是否相等。
+
+遵循的转换规则：
+
+如果任一操作数是布尔值，则将其转换为数值再比较是否相等
+
+```js
+let result1 = (true == 1); // true
+```
+
+如果一个操作数是字符串，另一个操作数是数值，则尝试将字符串转换为数值，再比较是否相等
+
+```js
+let result1 = ("55" == 55); // true
+```
+
+如果一个操作数是对象，另一个操作数不是，则调用对象的 `valueOf()`方法取得其原始值，再根据前面的规则进行比较
+
+```js
+let obj = {valueOf:function(){return 1}}
+let result1 = (obj == 1); // true
+```
+
+`null`和`undefined`相等
+
+```js
+let result1 = (null == undefined ); // true
+```
+
+如果有任一操作数是 `NaN` ，则相等操作符返回 `false`
+
+```js
+let result1 = (NaN == NaN ); // false
+```
+
+如果两个操作数都是对象，则比较它们是不是同一个对象。如果两个操作数都指向同一个对象，则相等操作符返回`true`
+
+```text
+let obj1 = {name:"xxx"}
+let obj2 = {name:"xxx"}
+let result1 = (obj1 == obj2 ); // false
+```
+
+下面进一步做个小结：
+
+- 两个都为简单类型，字符串和布尔值都会转换成==数值==，再比较。
+- 简单类型与引用类型比较，对象转化成其原始类型的值，再比较
+- 两个都为引用类型，则比较它们是否指向同一个对象
+- null 和 undefined 相等
+- 存在 NaN 则返回 fals
+
+**全等操作符`===`**
+
+全等操作符由 3 个等于号（ `===` ）表示，只有两个操作数在不转换的前提下相等才返回 `true`。即类型相同，值也需相同。==先对数据类型进行判断再对值进行.==
+
+```js
+let result1 = ("55" === 55); // false，不相等，因为数据类型不同
+let result2 = (55 === 55); // true，相等，因为数据类型相同值也相同
+```
+
+`undefined` 和 `null` 与自身严格相等
+
+```js
+let result1 = (null === null)  // true
+let result2 = (undefined === undefined)  // true
+```
+
+```js
+console.log(NaN === NaN) // false
+```
+
+**区别 **
+
+* 相等操作符（`==`）会做类型转换，再进行值的比较，全等运算符不会做类型转换
+
+```js
+let result1 = ("55" === 55); // false，不相等，因为数据类型不同
+let result2 = (55 === 55); // true，相等，因为数据类型相同值也相同
+```
+
+* `null` 和 `undefined` 比较不同，相等操作符（==）为`true`，全等为`false`.
+
+```
+let result1 = (null == undefined ); // true
+let result2 = (null  === undefined); // false
+```
+
+**小结**
+
+建议除了在比较对象属性为`null`或者`undefined`的情况下，我们可以使用相等操作符（`==`），其他情况建议一律使用全等操作符（`===`）。
+
+### 问题5： 深拷贝浅拷贝的区别？如何实现一个深拷贝？
+
+![img](JsImg/cdf952e0-69b8-11eb-85f6-6fac77c0c9b3.png)
+
+**数据类型存储**
+
+两大数据类型，基本数据类型和引用数据类型，基本数据类型存放在栈内存中，存放的就是值；而引用数据类型存放在堆内存中，栈内存中存放中引用堆内存实际对象的引用地址值，指向堆内存。
+
+**浅拷贝**
+
+浅拷贝，指的是创建新的数据，这个数据有着原始数据属性值的一份精确拷贝
+
+如果==属性是基本类型，拷贝的就是基本类型的值==。如果==属性是引用类型，拷贝的就是内存地址==。
+
+即浅拷贝是拷贝一层，深层次的引用类型则共享内存地址。
+
+* 实现一个简单的对象浅拷贝
+
+  ```js
+  function shallowClone(obj){
+    const newObj = new ();
+    for(let prop in obj){
+      if(obj.hasProperty(prop)){
+        newObj[prop] = obj[prop]
+      }
+    }
+    return newObj;
+  }
+  ```
+
+在`JavaScript`中，存在浅拷贝的现象有：
+
+1. `Object.assign`
+2. `Array.prototype.slice()`, `Array.prototype.concat()`
+3. 使用拓展运算符实现的复制。
+
+- `Object.assign(target, source)`
+
+  将可枚举和自由属性从一个或多个源对象复制到目标对象。---》源对象是我们要拷贝的对象。
+  如果目标对象与源对象key值（属性值）相同，则把源对象的属性覆盖掉目标对象的属性。--》相同属性就替换。
+
+  `Object.assign()` 只复制属性值，对于引用类型，如果把源对象堆内存中的内容改变，所复制到的目标对象值也会改变。⭐？？？会改变吗？？？==修改对象属性会影响原对象==
+
+  ```js
+  // 浅拷贝 数值、数组、对象、函数
+  var obj = {
+    num: 5,
+    arr:[1, 2, 3],
+    object:{
+      name:bob,
+      age:5
+    },
+    fun:function(){
+      console.log('属性值是一个函数')
+    }
+  }
+  var newObj = Object.assign({}, obj) // 把源对象obj浅拷贝给{}
+  ```
+
+- `Array.prototype.slice()`法返回一个新的数组对象，这一对象是一个由 `begin` 和 `end` 决定的原数组的**浅拷贝**（包括 `begin`，不包括`end`）。原始数组不会被改变。--》就是截取原数组的一段新生成一个浅拷贝的数组。
+
+  接收两个参数
+
+  ```js
+  const animals = ['ant', 'bison', 'camel', 'duck', 'elephant'];
+  
+  console.log(animals.slice(2));
+  // expected output: Array ["camel", "duck", "elephant"]
+  console.log(animals.slice(2, 4));
+  // expected output: Array ["camel", "duck"]
+  ```
+
+- `Array.prototype.concat()` 用于合并两个或多个数组。此方法不会更改现有数组，而是返回一个新数组。
+
+  ```js
+  const array1 = ['a', 'b', 'c'];
+  const array2 = ['d', 'e', 'f'];
+  const array3 = array1.concat(array2);
+  
+  console.log(array3);
+  // expected output: Array ["a", "b", "c", "d", "e", "f"]
+  ```
+
+- 扩展运算符`...`  
+
+  - 运算符将一个数组，变为参数序列。
+
+  - 替代apply()将数组转为函数的参数
+
+    ```js
+    const arr = [html, css, js]
+    const newArr = [...arr, react]
+    console.log(newArr) // [html, css, js, react]
+    ```
+
+**深拷贝**
+
+深拷贝开辟一个新的栈，两个对象属性完全相同，但是对应两个不同的地址，修改一个对象的属性，不会改变另一个对象的属性。
+
+常见的深拷贝方式有：
+
+1. _.cloneDeep()
+2. JSON.stringify()
+3. 手写循环递归
+
+* _.cloneDeep()
+
+  ```js
+  const _ = require('lodash');
+  const obj1 = {
+      a: 1,
+      b: { f: { g: 1 } },
+      c: [1, 2, 3]
+  };
+  const obj2 = _.cloneDeep(obj1);
+  console.log(obj1.b.f === obj2.b.f);// false
+  ```
+
+- JSON.stringify()
+
+  - 不支持 Symbol，BigInt，Function；忽略`undefined`、`symbol`和`函数`
+  - 不支持 循环引用
+  - 丢失值为 undefined 的键
+
+  ```js
+  const obj2=JSON.parse(JSON.stringify(obj1));
+  ```
+
+  ```js
+  const obj = {
+      name: 'A',
+      name1: undefined,
+      name3: function() {},
+      name4:  Symbol('A')
+  }
+  const obj2 = JSON.parse(JSON.stringify(obj));
+  console.log(obj2); // {name: "A"}
+  ```
+
+- 循环递归
+
+  ```js
+  function deepClone(obj, hash = new WeakMap()) {
+    if (obj === null) return obj; // 如果是null或者undefined我就不进行拷贝操作
+    if (obj instanceof Date) return new Date(obj);
+    if (obj instanceof RegExp) return new RegExp(obj);
+    // 可能是对象或者普通的值  如果是函数的话是不需要深拷贝
+    if (typeof obj !== "object") return obj;
+    // 是对象的话就要进行深拷贝
+    if (hash.get(obj)) return hash.get(obj);
+    let cloneObj = new obj.constructor();
+    // 找到的是所属类原型上的constructor,而原型上的 constructor指向的是当前类本身
+    hash.set(obj, cloneObj);
+    for (let key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        // 实现一个递归拷贝
+        cloneObj[key] = deepClone(obj[key], hash);
+      }
+    }
+    return cloneObj;
+  }
+  ```
+
+
+
+**区别**
+
+![img](JsImg/d9862c00-69b8-11eb-ab90-d9ae814b240d.png)
+
+- 浅拷贝只复制属性指向某个对象的指针，而不复制对象本身，新旧对象还是共享同一块内存，修改对象属性会影响原对象
+- 深拷贝会另外创造一个一模一样的对象，新对象跟原对象不共享内存，修改新对象不会改到原对象
+
+**小结**
+
+前提为拷贝类型为引用类型的情况下：
+
+- 浅拷贝是拷贝一层，属性为对象时，浅拷贝是复制，两个对象指向同一个地址
+- 深拷贝是递归拷贝深层次，属性为对象时，深拷贝是新开栈，两个对象指向不同的地址
