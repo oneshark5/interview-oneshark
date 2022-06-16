@@ -40,8 +40,8 @@
 
 ES6新增数据类型Symbol BigInt
 
-- Symbol 代表创建后独一无二且不可变的数据类型，它主要是为了解决可能出现的全局变量冲突的问题。---symbol类型：不可用作构造函数与new一起使用
-- BigInt 是一种数字类型的数据，它可以表示任意精度格式的整数，使用 BigInt 可以安全地存储和操作大整数，即使这个数已经超出了 Number 能够表示的安全整数范围。
+- Symbol 代表创建后独一无二且不可变的数据类型，它主要是为了解决可能出现的全局变量冲突的问题。---symbol类型：不可用作构造函数与new一起使用；（说说你对Symbol的理解？主要用于定义对象的属性，避免属性冲突）。
+- BigInt 是一种数字类型的数据，它可以表示任意精度格式的整数，使用 BigInt 可以安全地存储和操作大整数，即使这个数已经超出了 Number 能够表示的安全整数范围。（说说对BigInt的理解？）
 
 ### **🦈问题2：基本类型和引用类型的区别：**
 
@@ -149,8 +149,8 @@ ES6新增数据类型Symbol BigInt
 
 * **区别**
 
-  * typeof会返回一个变量的基本类型，instanceof返回的是一个布尔值
-  * instanceof 可以准确地判断复杂引用数据类型，但是不能正确判断基础数据类型
+  * typeof会返回一个变量的基本类型，instanceof返回的是一个布尔值。
+  * instanceof 可以准确地判断复杂引用数据类型，但是不能正确判断基础数据类型。
   * 而typeof 也存在弊端，它虽然可以判断基础数据类型（null 除外），但是引用数据类型中，除了function 类型以外，其他的也无法判断。
 
   **通用数据类型检测**
@@ -215,15 +215,15 @@ ES6新增数据类型Symbol BigInt
 
 * **isNaN 和 Number.isNaN 函数的区别**
 
-  - 函数 isNaN 接收参数后，会尝试将这个参数转换为数值，任何不能被转换为数值的的值都会返回 true，因此非数字值传入也会返回 true ，会影响 NaN 的判断。
+  - 函数 isNaN 接收参数后，会尝试将这个参数转换为数值，==任何不能被转换为数值的的值都会返回 true==，因此非数字值传入也会返回 true ，会影响 NaN 的判断。
   - 函数 Number.isNaN 会首先判断传入参数是否为数字，如果是数字再继续判断是否为 NaN ，==不会进行数据类型的转换==，这种方法对于 NaN 的判断更为准确。
 
 ### **🦈问题4：null 和 undefined 的差异**
 
-- null 转为数字类型值为 0,而 undefined 转为数字类型为 NaN；（已声明但是值为空null）
+- null 转为数字类型值为 0，而 undefined 转为数字类型为 NaN；（已声明但是值为空null）
 - undefined 是代表调用一个值而该值却没有赋值，这时候默认则为 undefined；（声明变量但未赋值）
 - null 是一个很特殊的对象，最为常见的一个用法就是作为参数传入(说明该参数不是对象）
-- 初始赋值null，表明将要赋值为对象。
+- 初始赋值null，表明将要赋值为对象。？
 - 结束前，让对象成为垃圾对象，设置为 null 的变量或者对象会被内存收集器回收；垃圾回收
 - 关于底层：`null`：所有机器码均为0。`undefined`：机器码用 −2^30 整数来表示
 
@@ -253,7 +253,7 @@ Boolean()可以将基本数据类型的布尔值转换为Boolean对象
 
 在 JavaScript 中，基本类型是没有属性和方法的，但是为了便于操作基本类型的值，在调用基本类型的属性或方法时 JavaScript 会在后台隐式地将基本类型的值转换为对象，如：
 
-```
+```js
 const a = "abc";
 a.length; // 3
 a.toUpperCase(); // "ABC"
@@ -262,7 +262,7 @@ a.toUpperCase(); // "ABC"
 在访问\'abc\'.length时，JavaScript 将'abc'在后台转换成String('abc')，然后再访问其length属性。
 JavaScript也可以使用**Object**函数显式地将基本类型转换为包装类型：
 
-```
+```js
 var a = 'abc'
 Object(a) // String {"abc"}
 ```
@@ -284,7 +284,6 @@ if (!a) {
 }
 console.log(typeof(a))
 // object
-// undefined
 ```
 
 答案是什么都不会打印，因为虽然包裹的基本类型是false，但是false被包裹成包装类型后就成了对象，所以其非值为false，所以循环体中的内容不会运行。
@@ -310,14 +309,14 @@ Array.isArray(obj) // false
 
 **Object.prototype.isPrototypeOf**
 
-- 使用 Object 的原型方法 isPrototypeOf，判断两个对象的原型是否一样, `isPrototypeOf()` 方法用于测试一个对象是否存在于另一个对象的原型链上。
+- 使用 Object 的原型方法 isPrototypeOf，判断两个对象的原型是否一样, `isPrototypeOf()` 方法用于测试一个对象是否存在于另一个对象的原型链上。---》instanceof就是采用的这种方法。
 
 ```
 const arr = []
 Object.prototype.isPrototypeOf(arr, Array.prototype) // true
 ```
 
-**Object.getPrototypeOf**：`getPrototypeOf()` 方法返回指定对象的原型
+**Object.getPrototypeOf**：`getPrototypeOf()` 方法返回指定对象的原型。
 
 ```
 const arr = []
@@ -360,7 +359,7 @@ Object.prototype.toString.call(obj) // "[object Object]"
 - reduce + concat
 
   ```js
-  arr.reduce((prev, cur) => prev.concat(cur), []);//这个仅能对二维数组进行铺平
+  arr.reduce((prev, cur) => prev.concat((cur), []);//这个仅能对二维数组进行铺平
   // 优化---采用递归
   // 定义一个flatten函数，判断如果是数组就一直递归
   function flatten(arr){
@@ -442,7 +441,7 @@ Object.prototype.toString.call(obj) // "[object Object]"
   }
   ```
 
-- reducer
+- reducer + indexOf()
   不存在该元素时，加入到数组，存在时直接返回前一计算结果的数组
 
   ```js
