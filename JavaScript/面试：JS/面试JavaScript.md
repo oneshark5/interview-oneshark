@@ -1650,11 +1650,9 @@ document.getElementById('size-16').onclick = size16;
 
 **注意事项**
 
-如果不是某些特定任务需要使用闭包，在其它函数中创建函数是不明智的，因为闭包在处理速度和内存消耗方面对脚本性能具有负面影响
+如果不是某些特定任务需要使用闭包，在其它函数中创建函数是不明智的，因为闭包在处理速度和内存消耗方面对脚本性能具有负面影响。
 
-例如，在创建新的对象或者类时，方法通常应该关联于对象的原型，而不是定义到对象的构造器中。
-
-原因在于每个对象的创建，方法都会被重新赋值
+例如，在创建新的对象或者类时，==方法通常应该关联于对象的原型，而不是定义到对象的构造器中。原因在于每个对象的创建，方法都会被重新赋值==。
 
 ```js
 function MyObject(name, message) {
@@ -1687,8 +1685,6 @@ MyObject.prototype.getMessage = function() {
 
 
 
-
-
 词法环境中保存着局部变量name。
 
 私有方法：例如Java中，私有方法只能被同一个类中的其他方法调用。
@@ -1696,3 +1692,470 @@ MyObject.prototype.getMessage = function() {
 私有方法优点：私有方法不仅仅有利于限制对代码的访问：还提供了管理全局命名空间的强大能力，避免非核心的方法弄乱了代码的公共接口部分。
 
 每次调用最外面的函数都会生成一个新的闭包，并且有自己的一个词法环境。每个闭包都是引用自己词法作用域内的变量 。
+
+### 问题7：说说你对作用域链的理解
+
+![img](../../../../项目/Serverless个人博客/blogImg/16f614a0-718f-11eb-ab90-d9ae814b240d.png)
+
+**作用域**
+
+作用域，即变量（变量作用域又称上下文）和函数生效（能被访问）的区域或集合
+
+换句话说，作用域决定了代码区块中变量和其他资源的可见性
+
+举个例子
+
+```js
+function myFunction() {
+    let inVariable = "函数内部变量";
+}
+myFunction();//要先执行这个函数，否则根本不知道里面是啥
+console.log(inVariable); // Uncaught ReferenceError: inVariable is not defined
+```
+
+上述例子中，函数`myFunction`内部创建一个`inVariable`变量，当我们在全局访问这个变量的时候，系统会报错
+
+这就说明我们在全局是无法获取到（闭包除外）函数内部的变量
+
+我们一般将作用域分成：
+
+- 全局作用域
+- 函数作用域
+- 块级作用域
+
+
+
+- **全局作用域**
+
+任何不在函数中或是大括号中声明的变量，都是在全局作用域下，全局作用域下声明的变量可以在程序的任意位置访问
+
+```js
+// 全局变量
+var greeting = 'Hello World!';
+function greet() {
+  console.log(greeting);
+}
+// 打印 'Hello World!'
+greet();
+```
+
+- **函数作用域**
+
+函数作用域也叫局部作用域，如果一个变量是在函数内部声明的它就在一个函数作用域下面。这些变量只能在函数内部访问，不能在函数以外去访问
+
+```js
+function greet() {
+  var greeting = 'Hello World!';
+  console.log(greeting);
+}
+// 打印 'Hello World!'
+greet();
+// 报错： Uncaught ReferenceError: greeting is not defined
+console.log(greeting);
+```
+
+可见上述代码中在函数内部声明的变量或函数，在函数外部是无法访问的，这说明在函数内部定义的变量或者方法只是函数作用域
+
+- **块级作用域**
+
+  函数块是指被大括号 ("{}") 包裹住的相关联的集合；例如if语句后就是一个块作用域。注意在{}中用`var`声明的变量没有块级作用域。
+
+  ES6引入了`let`和`const`关键字,和`var`关键字不同，在大括号中使用`let`和`const`声明的变量存在于块级作用域中。在大括号之外不能访问这些变量。
+
+  ```js
+  {
+    // 块级作用域中的变量
+    let greeting = 'Hello World!';
+    var lang = 'English';
+    console.log(greeting); // Prints 'Hello World!'
+  }
+  // 变量 'English'
+  console.log(lang);
+  // 报错：Uncaught ReferenceError: greeting is not defined
+  console.log(greeting);
+  ```
+
+**词法作用域**
+
+词法作用域，又叫静态作用域，变量被创建时就确定好了，而非执行阶段确定的。也就是说我们写好代码时它的作用域就确定了，`JavaScript` 遵循的就是词法作用域
+
+```js
+var a = 2;
+function foo(){
+    console.log(a)
+}
+function bar(){
+    var a = 3;
+    foo();
+}
+n()
+```
+
+上述代码改变成一张图
+
+![img](../../../../项目/Serverless个人博客/blogImg/29fab3d0-718f-11eb-85f6-6fac77c0c9b3.png)
+
+由于`JavaScript`遵循词法作用域，相同层级的 `foo` 和 `bar` 就没有办法访问到彼此块作用域中的变量，所以输出2
+
+**作用域链**
+
+当在`Javascript`中使用一个变量的时候，首先`Javascript`引擎会尝试在当前作用域下去寻找该变量，如果没找到，再到它的上层作用域寻找，以此类推直到找到该变量或是已经到了全局作用域。🦈自下而上，从内向外查找，知道全局作用域。
+
+如果在全局作用域里仍然找不到该变量，它就会在全局范围内隐式声明该变量(非严格模式下)或是直接报错
+
+这里拿《你不知道的Javascript(上)》中的一张图解释：
+
+把作用域比喻成一个建筑，这份建筑代表程序中的嵌套作用域链，第一层代表当前的执行作用域，顶层代表全局作用域
+
+![img](../../../../项目/Serverless个人博客/blogImg/33f9c100-718f-11eb-85f6-6fac77c0c9b3.png)
+
+变量的引用会顺着当前楼层进行查找，如果找不到，则会往上一层找，一旦到达顶层，查找的过程都会停止
+
+下面代码演示下：
+
+```js
+var sex = '男';
+function person() {
+    var name = '张三';
+    function student() {
+        var age = 18;
+        console.log(name); // 张三
+        console.log(sex); // 男 
+    }
+    student();
+    console.log(age); // Uncaught ReferenceError: age is not defined
+}
+person();
+```
+
+上述代码主要主要做了以下工作：
+
+- `student`函数内部属于最内层作用域，找不到`name`，向上一层作用域`person`函数内部找，找到了输出“张三”
+- `student`内部输出cat时找不到，向上一层作用域`person`函数找，还找不到继续向上一层找，即全局作用域，找到了输出“男”
+- 在`person`函数内部输出`age`时找不到，向上一层作用域找，即全局作用域，还是找不到则报错
+
+### 问题8：JavaScript原型，原型链 ? 有什么特点？
+
+![img](面试JavaScript.assets/4500e170-725e-11eb-85f6-6fac77c0c9b3.png)
+
+**原型**
+
+函数的prototype属性，每个函数都有一个prototype属性。
+
+`JavaScript` 常被描述为一种基于原型的语言——每个对象拥有一个原型对象
+
+当试图访问一个对象的属性时，它不仅仅在该对象上搜寻，还会搜寻该对象的原型，以及该对象的原型的原型，依次层层向上搜索，直到找到一个名字匹配的属性或到达原型链的末尾
+
+准确地说，这些属性和方法定义在Object的构造器函数（constructor functions）之上的`prototype`属性上，而非实例对象本身
+
+下面举个例子：
+
+函数可以有属性。 每个函数都有一个特殊的属性叫作原型`prototype`
+
+```js
+function doSomething(){}
+console.log( doSomething.prototype );
+```
+
+控制台输出
+
+```js
+{
+    constructor: ƒ doSomething(),
+    __proto__: {
+        constructor: ƒ Object(),
+        hasOwnProperty: ƒ hasOwnProperty(),
+        isPrototypeOf: ƒ isPrototypeOf(),
+        propertyIsEnumerable: ƒ propertyIsEnumerable(),
+        toLocaleString: ƒ toLocaleString(),
+        toString: ƒ toString(),
+        valueOf: ƒ valueOf()
+    }
+}
+```
+
+上面这个对象，就是大家常说的原型对象
+
+可以看到，原型对象有一个自有属性`constructor`，这个属性指向该函数，如下图关系展示
+
+![img](面试JavaScript.assets/56d87250-725e-11eb-ab90-d9ae814b240d.png)
+
+**原型链**
+
+原型对象也可能拥有原型，并从中继承方法和属性，一层一层、以此类推。这种关系常被称为原型链 (prototype chain)，它解释了为何一个对象会拥有定义在其他对象中的属性和方法
+
+在对象实例和它的构造器之间建立一个链接（它是`__proto__`属性，是从构造函数的`prototype`属性派生的），之后通过上溯原型链，在构造器中找到这些属性和方法
+
+下面举个例子：
+
+```js
+function Person(name) {
+    this.name = name;
+    this.age = 18;
+    this.sayName = function() {
+        console.log(this.name);
+    }
+}
+// 第二步 创建实例
+var person = new Person('person')
+```
+
+根据代码，我们可以得到下图
+
+![img](面试JavaScript.assets/60825aa0-725e-11eb-85f6-6fac77c0c9b3.png)
+
+🦈整个过程
+我们创建了一个构造函数Person和一个实例对象person作为例子
+
+- 每个函数都有一个prototype属性，所构造函数的prototype属性指向其原型对象Person.prototype，实例对象存在着`__proto__`属性，指向构造函数的原型对象。
+- 构造函数Person底层是一个函数，由函数创建，所以其`__proto__`属性会指向匿名函数
+- 构造函数Person的原型对象为一个普通对象，是又Object创建的，所以其指向内置对象，即`Person.prototype.__proto__`指向内置对象，
+- Object对象的原型是内置对象，同时Object又是一个函数，所以其`__proto__`属性会指向函数的原型即匿名函数。
+- Function的两个属性都会指向匿名函数，匿名函数指向内置对象，最终指向为null
+
+下面分析一下：
+
+- 构造函数`Person`存在原型对象`Person.prototype`
+- 构造函数生成实例对象`person`，`person`的`__proto__`指向构造函数`Person`原型对象
+- `Person.prototype.__proto__` 指向内置对象，因为 `Person.prototype` 是个对象，默认是由 `Object`函数作为类创建的，而 `Object.prototype` 为内置对象
+- `Person.__proto__` 指向内置匿名函数 `anonymous`，因为 Person 是个函数对象，默认由 Function 作为类创建
+- `Function.prototype` 和 `Function.__proto__`同时指向内置匿名函数 `anonymous`，这样原型链的终点就是 `nul`
+
+**总结**
+
+下面首先要看几个概念：
+
+`__proto__`作为不同对象之间的桥梁，用来指向创建它的构造函数的原型对象的
+
+![img](面试JavaScript.assets/6a742160-725e-11eb-ab90-d9ae814b240d-1655518501163.png)
+
+每个对象的`__proto__`都是指向它的构造函数的原型对象`prototype`的
+
+```js
+person1.__proto__ === Person.prototype
+```
+
+构造函数是一个函数对象，是通过 `Function`构造器产生的
+
+```js
+Person.__proto__ === Function.prototype
+```
+
+原型对象本身是一个普通对象，而普通对象的构造函数都是`Object`
+
+```js
+Person.prototype.__proto__ === Object.prototype
+```
+
+刚刚上面说了，所有的构造器都是函数对象，函数对象都是 `Function`构造产生的
+
+```js
+Object.__proto__ === Function.prototype
+```
+
+`Object`的原型对象也有`__proto__`属性指向`null`，`null`是原型链的顶端
+
+```js
+Object.prototype.__proto__ === null
+```
+
+下面作出总结：
+
+- 一切对象都是继承自`Object`对象，`Object` 对象直接继承根源对象`null`
+- 一切的函数对象（包括 `Object` 对象），都是继承自 `Function` 对象
+- `Object` 对象直接继承自 `Function` 对象
+- `Function`对象的`__proto__`会指向自己的原型对象，最终还是继承自`Object`对象
+
+### 问题9：Javascript如何实现继承？
+
+![img](面试JavaScript.assets/5d9c4450-72a3-11eb-85f6-6fac77c0c9b3.png)
+
+**是什么**
+
+**实现方式**
+
+- 原型链继承（不会被单独使用）
+
+  🦈实现一个原型链继承
+
+  定义父类、子类构造函数，让子类构造函数的原型执行父的实例对象，这样就实现类子类继承父类的属性和方法。
+
+  ```js
+  // 定义父类
+  function Parent() {
+      this.name = 'Jack';
+  }
+  // 父类原型添加方法
+  Parent.prototype.getName = function () {
+      return this.name;
+  };
+  
+  // 子类
+  function Child() {}
+  // 子类的原型设置为父类Parent的实例
+  Child.prototype = new Parent();
+  
+  // 实例化子类
+  const child = new Child();
+  
+  console.log(child.getName()); // Jack
+  ```
+
+  ![img](面试JavaScript.assets/20210802133147.png)
+
+  两个注意点（缺点）：
+
+  - 继承之后再更改原型属性不会向下传递
+  - 实例之间互相影响
+
+  原型链继承，创建实例对象时实现继承，再次对原型上的属性和方法进行更改时，不会影响到实例对象原有的继承。
+
+  ```js
+  let f = function () {
+    this.a = 1;
+    this.b = 2;
+  }
+  let o = new f(); // {a: 1, b: 2}
+  // 对原型的属性进行了更改
+  f.prototype.b = 3;
+  f.prototype.c = 4;
+  console.log(o.a); // 1
+  console.log(o.b); // 2 ==》不会影响到原有继承
+  console.log(o.c); // 4 ==》当前实例中没有该属性，取原型中查找
+  console.log(o.d); // undefined ==》 原型中也没有，返回undefined
+  ```
+
+  但是多个实例对象实现原型链继承时，都其中一个实例更改属性，会影响到其他实例。--》即当继承的函数被调用时，[this](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/this) 指向的是当前继承的对象，而不是继承的函数所在的原型对象。
+
+  ```js
+  function Parent() {
+    this.name = 'parent1';
+    this.play = [1, 2, 3]
+  }
+  function Child() {
+    this.type = 'child2';
+  }
+  Child1.prototype = new Parent();
+  console.log(new Child())
+  ```
+
+  上面代码看似没问题，实际存在潜在问题
+
+  ```js
+    var s1 = new Child2();
+    var s2 = new Child2();
+    s1.play.push(4);
+    console.log(s1.play, s2.play); // [1,2,3,4]
+  ```
+
+  改变`s1`的`play`属性，会发现`s2`也跟着发生变化了，这是因为两个实例使用的是同一个原型对象，内存空间是共享。
+
+- 构造函数继承（不单独使用）
+
+  在**子类构造函数**中调用**父类构造函数**。使用 `apply()`和`call()`方法以**新创建的对象**为上下文执行构造函数。
+
+  ```js
+  function Parent(){
+      this.name = 'parent1';
+  }
+  
+  Parent.prototype.getName = function () {
+      return this.name;
+  }
+  
+  function Child(){
+      Parent1.call(this);
+      this.type = 'child'
+  }
+  
+  let child = new Child();
+  console.log(child);  // 没问题
+  console.log(child.getName());  // 会报错
+  ```
+
+  只能继承父类的实例属性和方法，不能继承原型属性或者方法。
+
+  ```js
+  function SuperType() {
+      this.colors = ['red', 'blue', 'green'];
+  }
+  function SubType() {
+      // 继承 SuperType
+      SuperType.call(this);
+  }
+  const instance1 = new SubType();
+  instance1.colors.push('black');
+  console.log(instance1.colors); // [ 'red', 'blue', 'green', 'black' ]
+  
+  const instance2 = new SubType();
+  console.log(instance2.colors); // [ 'red', 'blue', 'green' ]
+  ```
+
+  实例之间不互相影响，因为`SubType`子类调用call仅对父函数复制了初始化代码，每一个实例都是一个新的。
+
+  ```js
+  function SuperType(name) {
+      this.name = name;
+  }
+  function SubType() {
+      // 继承 SuperType 并传参
+      SuperType.call(this, 'Nicholas');
+      // 实例属性
+      this.age = 29;
+  }
+  const usr = new SubType();
+  console.log(usr.name, usr.age); // Nicholas 29
+  ```
+
+  相比于使用**原型链**，**构造函数继承**的一个优点就是**可以在子类构造函数中向父类构造函数传参**。
+
+  小结：
+
+  - 可向父类构造函数传参
+  - 实例之间不影响
+  - 不能访问父类原型上的方法
+
+- 组合继承 
+
+  **组合继承**，有时候也叫**伪经典继承**，综合了**原型链**和**盗用构造函数**，将两者的优点集中了起来。使用**原型链继承原型上的属性和方法**，而通过**盗用构造函数继承实例属性**。这样既可以把方法定义在原型上以实现重用，又可以让每个实例都有自己的属性。
+
+  ```javascript
+  function SuperType(name) {
+      this.name = name;
+      this.colors = ['red', 'blue', 'green'];
+  }
+  SuperType.prototype.sayName = function () {
+      console.log(this.name);
+  };
+  
+  function SubType(name, age) {
+      // 继承属性
+      SuperType.call(this, name);
+      this.age = age;
+  }
+  // 继承方法
+  SubType.prototype = new SuperType();
+  SubType.prototype.sayAge = function () {
+      console.log(this.age);
+  };
+  
+  const usr1 = new SubType('Nicholas', 29);
+  usr1.colors.push('black');
+  console.log(usr1.colors); // [ 'red', 'blue', 'green', 'black' ]
+  usr1.sayName(); // Nicholas
+  usr1.sayAge(); // 29
+  
+  const usr2 = new SubType('Greg', 27);
+  console.log(usr2.colors); // [ 'red', 'blue', 'green' ]
+  usr2.sayName(); // Greg
+  usr2.sayAge(); // 27
+  ```
+
+  **组合继承**弥补了**原型链**和**盗用构造函数**的不足，是 JavaScript 中使用最多的继承模式。而且组合继承也保留了`instanceof`操作符和`isPrototypeOf()`方法**识别合成对象**的能力。
+
+- 原型式继承
+
+  
+
+**总结**
+
