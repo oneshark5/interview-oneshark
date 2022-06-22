@@ -2159,3 +2159,9 @@ Object.prototype.__proto__ === null
 
 **总结**
 
+
+
+### 面试10：谈谈this对象的理解
+
+
+
