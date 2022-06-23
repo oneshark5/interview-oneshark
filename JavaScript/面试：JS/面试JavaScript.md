@@ -2527,3 +2527,541 @@ console.log('Inside Global Execution Context');
 
 事件流描述了页面接收事件的顺序。
 
+事件流都会经历三个阶段：
+
+- 事件捕获阶段(capture phase)
+- 处于目标阶段(target phase)
+- 事件冒泡阶段(bubbling phase)
+
+![img](面试JavaScript.assets/3e9a6450-74cf-11eb-85f6-6fac77c0c9b3.png)
+
+事件冒泡是一种从下往上的传播方式，由最具体的元素（触发节点）然后逐渐向上传播到最不具体的那个节点，也就是`DOM`中最高层的父节点
+
+**事件模型**
+
+- 原始事件模型（DOM0级）
+- 标准事件模型（DOM2级）
+
+
+
+- **原始事件模型**
+
+  事件绑定监听函数比较简单, 有两种方式：
+
+  - HTML代码中直接绑定
+
+  ```js
+  <input type="button" onclick="fun()">
+  ```
+
+  - 通过`JS`代码绑定
+
+  ```js
+  var btn = document.getElementById('.btn');
+  btn.onclick = fun;
+  ```
+
+  **特性**
+
+  - 绑定速度快
+
+  `DOM0`级事件具有很好的跨浏览器优势，会以最快的速度绑定，但由于绑定速度太快，可能页面还未完全加载出来，以至于事件可能无法正常运行
+
+  - 只支持冒泡，不支持捕获
+  - 同一个类型的事件只能绑定一次
+
+  ```js
+  <input type="button" id="btn" onclick="fun1()">
+  
+  var btn = document.getElementById('.btn');
+  btn.onclick = fun2;
+  ```
+
+  如上，当希望为同一个元素绑定多个同类型事件的时候（上面的这个`btn`元素绑定2个点击事件），是不被允许的，后绑定的事件会覆盖之前的事件
+
+  删除 `DOM0` 级事件处理程序只要将对应事件属性置为`null`即可
+
+  ```js
+  btn.onclick = null;
+  ```
+
+**标准事件模型**
+
+在该事件模型中，一次事件共有三个过程:
+
+- 事件捕获阶段：事件从`document`一直向下传播到目标元素, 依次检查经过的节点是否绑定了事件监听函数，如果有则执行
+- 事件处理阶段：事件到达目标元素, 触发目标元素的监听函数
+- 事件冒泡阶段：事件从目标元素冒泡到`document`, 依次检查经过的节点是否绑定了事件监听函数，如果有则执行
+
+事件绑定监听函数的方式如下:
+
+```text
+addEventListener(eventType, handler, useCapture)
+```
+
+事件移除监听函数的方式如下:
+
+```text
+removeEventListener(eventType, handler, useCapture)
+```
+
+参数如下：
+
+- `eventType`指定事件类型(不要加on)
+- `handler`是事件处理函数
+- `useCapture`是一个`boolean`用于指定是否在捕获阶段进行处理，一般设置为`false`与IE浏览器保持一致
+
+举个例子：
+
+```js
+var btn = document.getElementById('.btn');
+btn.addEventListener(‘click’, showMessage, false);
+btn.removeEventListener(‘click’, showMessage, false);
+```
+
+特性
+
+- 可以在一个`DOM`元素上绑定多个事件处理器，各自并不会冲突
+
+```js
+btn.addEventListener(‘click’, showMessage1, false);
+btn.addEventListener(‘click’, showMessage2, false);
+btn.addEventListener(‘click’, showMessage3, false);
+```
+
+- 执行时机
+
+当第三个参数(`useCapture`)设置为`true`就在捕获过程中执行，反之在冒泡过程中执行处理函数
+
+下面举个例子：
+
+```js
+<div id='div'>
+    <p id='p'>
+        <span id='span'>Click Me!</span>
+    </p >
+</div>
+```
+
+设置点击事件
+
+```js
+var div = document.getElementById('div');
+var p = document.getElementById('p');
+
+function onClickFn (event) {
+    var tagName = event.currentTarget.tagName;
+    var phase = event.eventPhase;
+    console.log(tagName, phase);
+}
+
+div.addEventListener('click', onClickFn, false);
+p.addEventListener('click', onClickFn, false);
+```
+
+上述使用了`eventPhase`，返回一个代表当前执行阶段的整数值。1为捕获阶段、2为事件对象触发阶段、3为冒泡阶段
+
+点击`Click Me!`，输出如下
+
+```js
+P 3
+DIV 3
+```
+
+可以看到，`p`和`div`都是在冒泡阶段响应了事件，由于冒泡的特性，裹在里层的`p`率先做出响应
+
+如果把第三个参数都改为`true`
+
+```js
+div.addEventListener('click', onClickFn, true);
+p.addEventListener('click', onClickFn, true);
+```
+
+输出如下
+
+```js
+DIV 1
+P 1
+```
+
+两者都是在捕获阶段响应事件，所以`div`比`p`标签先做出响应
+
+### 问题13：typeof 与 instanceof 区别
+
+![img](面试JavaScript.assets/3fc158f0-7710-11eb-ab90-d9ae814b240d.png)
+
+🦈要求：手写数据类型判断，包括`instanceof原理`和通用的数据类型判断方法`Object.prototype.toString`。
+
+- `typeof`用于判断原始数据类型（或者对象）
+- `instanceof`用于判断引用数据类型
+
+**typeof**
+
+**instancof**
+
+`instanceof` 运算符用于检测构造函数的 `prototype` 属性是否出现在某个实例对象的原型链上。
+
+🦈
+
+使用如下：
+
+```js
+object instanceof constructor
+```
+
+`object`为实例对象，`constructor`为构造函数
+
+构造函数通过`new`可以实例对象，`instanceof`能判断这个对象是否是之前那个构造函数生成的对象
+
+```js
+// 定义构建函数
+let Car = function() {}
+let benz = new Car()
+benz instanceof Car // true
+let car = new String('xxx')
+car instanceof String // true
+let str = 'xxx'
+str instanceof String // false
+```
+
+关于`instanceof`的实现原理，可以参考下面：
+
+```js
+function myInstanceof(left, right) {
+    // 这里先用typeof来判断基础数据类型，如果是，直接返回false
+    if(typeof left !== 'object' || left === null) return false;
+    // getProtypeOf是Object对象自带的API，能够拿到参数的原型对象
+    let proto = Object.getPrototypeOf(left);
+    while(true) {                  
+        if(proto === null) return false;
+        if(proto === right.prototype) return true;//找到相同原型对象，返回true
+        proto = Object.getPrototypeof(proto);
+    }
+}
+```
+
+也就是顺着原型链去找，直到找到相同的原型对象，返回`true`，否则为`false`。
+
+**区别**
+
+`typeof`与`instanceof`都是判断数据类型的方法，区别如下：
+
+- `typeof`会返回一个变量的基本类型，`instanceof`返回的是一个布尔值
+- `instanceof` 可以准确地判断复杂引用数据类型，但是不能正确判断基础数据类型
+- 而`typeof` 也存在弊端，它虽然可以判断基础数据类型（`null` 除外），但是引用数据类型中，除了`function` 类型以外，其他的也无法判断
+
+可以看到，上述两种方法都有弊端，并不能满足所有场景的需求
+
+如果需要通用检测数据类型，可以采用`Object.prototype.toString`，调用该方法，统一返回格式`“[object Xxx]”`的字符串
+
+如下
+
+```js
+Object.prototype.toString({})       // "[object Object]"
+Object.prototype.toString.call({})  // 同上结果，加上call也ok
+Object.prototype.toString.call(1)    // "[object Number]"
+Object.prototype.toString.call('1')  // "[object String]"
+Object.prototype.toString.call(true)  // "[object Boolean]"
+Object.prototype.toString.call(function(){})  // "[object Function]"
+Object.prototype.toString.call(null)   //"[object Null]"
+Object.prototype.toString.call(undefined) //"[object Undefined]"
+Object.prototype.toString.call(/123/g)    //"[object RegExp]"
+Object.prototype.toString.call(new Date()) //"[object Date]"
+Object.prototype.toString.call([])       //"[object Array]"
+Object.prototype.toString.call(document)  //"[object HTMLDocument]"
+Object.prototype.toString.call(window)   //"[object Window]"
+```
+
+了解了`toString`的基本用法，下面就实现一个全局通用的数据类型判断方法
+
+```js
+
+// 把typeof和Object.prototype.toString.call()结合起来
+// 为什么不直接使用Object.prototype.toString.call()，以防toString被重写function getType(obj){
+let type  = typeof obj;
+if (type !== "object") {    // 先进行typeof判断，如果是基础数据类型，直接返回
+  return type;
+}
+// 对于typeof返回结果是object的，再进行如下的判断，正则返回结果
+return Object.prototype.toString.call(obj).replace(/^\[object (\S+)\]$/, '$1'); 
+}
+```
+
+使用如下
+
+```js
+getType([])     // "Array" typeof []是object，因此toString返回
+getType('123')  // "string" typeof 直接返回
+getType(window) // "Window" toString返回
+getType(null)   // "Null"首字母大写，typeof null是object，需toString来判断
+getType(undefined)   // "undefined" typeof 直接返回
+getType()            // "undefined" typeof 直接返回
+getType(function(){}) // "function" typeof能判断，因此首字母小写
+getType(/123/g)      //"RegExp" toString返回
+```
+
+### 问题14：解释下什么是事件代理？应用场景？
+
+![img](面试JavaScript.assets/a33f0ab0-797e-11eb-ab90-d9ae814b240d.png)
+
+🦈思考：自己项目中的事件处理函数能不能采用事件代理的方式统一去处理。
+
+**是什么**
+
+事件代理，俗地来讲，就是把一个元素响应事件（`click`、`keydown`......）的函数委托到另一个元素
+
+前面讲到，事件流的都会经过三个阶段： 捕获阶段 -> 目标阶段 -> 冒泡阶段，而事件委托就是在冒泡阶段完成
+
+事件委托，会把一个或者一组元素的事件委托到它的父层或者更外层元素上，真正绑定事件的是外层元素，而不是目标元素
+
+当事件响应到目标元素上时，会通过事件冒泡机制从而触发它的外层元素的绑定事件上，然后在外层元素上去执行函数
+
+下面举个例子：
+
+比如一个宿舍的同学同时快递到了，一种笨方法就是他们一个个去领取
+
+较优方法就是把这件事情委托给宿舍长，让一个人出去拿好所有快递，然后再根据收件人一一分发给每个同学
+
+在这里，取快递就是一个事件，每个同学指的是需要响应事件的 `DOM`元素，而出去统一领取快递的宿舍长就是代理的元素
+
+所以真正绑定事件的是这个元素，按照收件人分发快递的过程就是在事件执行中，需要判断当前响应的事件应该匹配到被代理元素中的哪一个或者哪几个
+
+**应用场景**
+
+列表项举例
+
+- 每个列表项都绑定一个事件处理函数，内存消耗较大
+- 动态增加或解绑事件时，操作繁琐玛法。
+
+如果我们有一个列表，列表之中有大量的列表项，我们需要在点击列表项的时候响应一个事件
+
+```js
+<ul id="list">
+  <li>item 1</li>
+  <li>item 2</li>
+  <li>item 3</li>
+  ......
+  <li>item n</li>
+</ul>
+```
+
+如果给每个列表项一一都绑定一个函数，那对于内存消耗是非常大的
+
+```js
+// 获取目标元素
+const lis = document.getElementsByTagName("li")
+// 循环遍历绑定事件
+for (let i = 0; i < lis.length; i++) {
+    lis[i].onclick = function(e){
+        console.log(e.target.innerHTML)
+    }
+}
+```
+
+这时候就可以事件委托，把点击事件绑定在父级元素`ul`上面，然后执行事件的时候再去匹配目标元素
+
+```js
+// 给父层元素绑定事件
+document.getElementById('list').addEventListener('click', function (e) {
+    // 兼容性处理
+    var event = e || window.event;
+    var target = event.target || event.srcElement;
+    // 判断是否匹配目标元素
+    if (target.nodeName.toLocaleLowerCase === 'li') {
+        console.log('the content is: ', target.innerHTML);
+    }
+});
+```
+
+还有一种场景是上述列表项并不多，我们给每个列表项都绑定了事件
+
+但是如果用户能够随时动态的增加或者去除列表项元素，那么在每一次改变的时候都需要重新给新增的元素绑定事件，给即将删去的元素解绑事件
+
+如果用了事件委托就没有这种麻烦了，因为事件是绑定在父层的，和目标元素的增减是没有关系的，执行到目标元素是在真正响应执行事件函数的过程中去匹配的
+
+举个例子：
+
+下面`html`结构中，点击`input`可以动态添加元素
+
+```html
+<input type="button" name="" id="btn" value="添加" />
+<ul id="ul1">
+    <li>item 1</li>
+    <li>item 2</li>
+    <li>item 3</li>
+    <li>item 4</li>
+</ul>
+```
+
+使用事件委托
+
+```js
+const oBtn = document.getElementById("btn");
+const oUl = document.getElementById("ul1");
+const num = 4;
+
+//事件委托，添加的子元素也有事件
+oUl.onclick = function (ev) {
+    ev = ev || window.event;
+    const target = ev.target || ev.srcElement;
+    if (target.nodeName.toLowerCase() == 'li') {
+        console.log('the content is: ', target.innerHTML);
+    }
+
+};
+
+//添加新节点
+oBtn.onclick = function () {
+    num++;
+    const oLi = document.createElement('li');
+    oLi.innerHTML = `item ${num}`;
+    oUl.appendChild(oLi);
+};
+```
+
+可以看到，使用事件委托，在动态绑定事件的情况下是可以减少很多重复工作的
+
+**总结**
+
+适合事件委托的事件有：`click`，`mousedown`，`mouseup`，`keydown`，`keyup`，`keypress`
+
+从上面应用场景中，我们就可以看到使用事件委托存在两大优点：
+
+- 减少整个页面所需的内存，提升整体性能
+- 动态绑定，减少重复工作
+
+但是使用事件委托也是存在局限性：
+
+- `focus`、`blur`这些事件没有事件冒泡机制，所以无法进行委托绑定事件
+- `mousemove`、`mouseout`这样的事件，虽然有事件冒泡，但是只能不断通过位置去计算定位，对性能消耗高，因此也是不适合于事件委托的
+
+如果把所有事件都用事件代理，可能会出现事件误判，即本不该被触发的事件被绑定上了事件
+
+### 问题15：说说new操作符具体干了什么？
+
+**一、是什么**
+
+在`JavaScript`中，`new`操作符用于创建一个给定构造函数的实例对象
+
+例子
+
+```js
+function Person(name, age){
+    this.name = name;
+    this.age = age;
+}
+Person.prototype.sayName = function () {
+    console.log(this.name)
+}
+const person1 = new Person('Tom', 20)
+console.log(person1)  // Person {name: "Tom", age: 20}
+t.sayName() // 'Tom'
+```
+
+从上面可以看到：
+
+- `new` 通过构造函数 `Person` 创建出来的实例可以访问到构造函数中的属性
+- `new` 通过构造函数 `Person` 创建出来的实例可以访问到构造函数原型链中的属性（即实例与构造函数通过原型链连接了起来）
+
+现在在构建函数中显式加上返回值，并且这个返回值是一个原始类型
+
+```js
+function Test(name) {
+  this.name = name
+  return 1
+}
+const t = new Test('xxx')
+console.log(t.name) // 'xxx'
+```
+
+
+
+可以发现，构造函数中返回一个原始值，然而这个返回值并没有作用
+
+下面在构造函数中返回一个对象
+
+```js
+function Test(name) {
+  this.name = name
+  console.log(this) // Test { name: 'xxx' }
+  return { age: 26 }
+}
+const t = new Test('xxx')
+console.log(t) // { age: 26 }
+console.log(t.name) // 'undefined'
+```
+
+
+
+从上面可以发现，构造函数如果返回值为一个对象，那么这个返回值会被正常使用
+
+**二、流程**
+
+从上面介绍中，我们可以看到`new`关键字主要做了以下的工作：
+
+- 创建一个新的对象`obj`
+- 将对象与构建函数通过原型链连接起来
+- 将构建函数中的`this`绑定到新建的对象`obj`上
+- 根据构建函数返回类型作判断，如果是原始值则被忽略，如果是返回对象，需要正常处理
+
+举个例子：
+
+```js
+function Person(name, age){
+    this.name = name;
+    this.age = age;
+}
+const person1 = new Person('Tom', 20)
+console.log(person1)  // Person {name: "Tom", age: 20}
+t.sayName() // 'Tom'
+```
+
+流程图如下：
+
+![img](面试JavaScript.assets/b429b990-7a39-11eb-85f6-6fac77c0c9b3.png)
+
+**三、手写new操作符**
+
+现在我们已经清楚地掌握了`new`的执行过程
+
+那么我们就动手来实现一下`new`
+
+```js
+function mynew(Func, ...args) {
+    // 1.创建一个新对象
+    const obj = {}
+    // 2.新对象原型指向构造函数原型对象
+    obj.__proto__ = Func.prototype
+    // 3.将构建函数的this指向新对象
+    let result = Func.apply(obj, args)
+    // 4.根据返回值判断
+    return result instanceof Object ? result : obj
+}
+```
+
+测试一下
+
+```js
+function mynew(func, ...args) {
+    const obj = {}
+    obj.__proto__ = func.prototype
+    let result = func.apply(obj, args)
+    return result instanceof Object ? result : obj
+}
+function Person(name, age) {
+    this.name = name;
+    this.age = age;
+}
+Person.prototype.say = function () {
+    console.log(this.name)
+}
+
+let p = mynew(Person, "huihui", 123)
+console.log(p) // Person {name: "huihui", age: 123}
+p.say() // huihui
+```
+
+可以发现，代码虽然很短，但是能够模拟实现`new`
+
+### 问题16：bind、call、apply 区别？如何实现一个bind?
+

@@ -78,6 +78,32 @@
     console.log('==========');
     cities.remove("Xian")
     cities.display()
+
+    // instanceof原理实现
+    function myInstanceof(left, right) {
+      // 判断是不是基础数据类型
+      if(typeof(left) !== 'object' || typeof(left) !== null) return false
+      // 获取实例对象的原型
+      let proto = Object.getPrototypeOf(left)
+      // 沿着原型链一直查找
+      while(true){
+        if(proto === null) return false
+        if(proto = right.prototype) return true //right构造函数的prototype属性在left实例对象的原型链上
+        proto = Object.getPrototypeOf(proto)
+      }
+    }
+
+    // 实现一个通用的数据类型判断方法
+    // 把typeof和Object.prototype.toString.call()结合起来
+    // 为什么不直接使用Object.prototype.toString.call()，以防toString被重写
+    function getType(obj) {
+      // 原始数据类型
+      let type = typeof(obj)
+      if(type !== 'object') return type
+      // 引用数据类型
+      return Object.prototype.toString.call(obj).replace(/^\[object (\S+)\]$/, '$1')
+    }
+
   </script>
 </body>
 </html>
