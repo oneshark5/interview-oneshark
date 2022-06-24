@@ -3065,3 +3065,875 @@ p.say() // huihui
 
 ### 问题16：bind、call、apply 区别？如何实现一个bind?
 
+![img](面试JavaScript.assets/a900e460-7be4-11eb-ab90-d9ae814b240d.png)
+
+**apply()、call()、bind()详解**
+
+- **apply()**
+
+  语法
+
+  ```js
+  apply(thisArg)
+  apply(thisArg, argsArray)
+  // thisArg：this的指向；argsArray：数组或类数组
+  // 含义：即把一个类数组参数argsArray的this绑定到thisArg上
+  ```
+
+  thisArg：this的指向；指定为 `null` 或 `undefined` 时会自动替换为指向全局对象，原始值会被包装。
+  argsArray：数组或类数组；如果该参数的值为 [`null`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/null) 或  [`undefined`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/undefined)，则表示不需要传入任何参数。
+
+  实例
+
+  - 实例一：[用 `apply` 将数组各项添加到另一个数组](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/apply#%E7%94%A8_apply_%E5%B0%86%E6%95%B0%E7%BB%84%E5%90%84%E9%A1%B9%E6%B7%BB%E5%8A%A0%E5%88%B0%E5%8F%A6%E4%B8%80%E4%B8%AA%E6%95%B0%E7%BB%84)
+
+    向一个数组中添加元素时，该元素是数组，如果使用`push()`会将整个数组添加进去，如果想把被添加数组中的元素逐个添加到数组，可以采用`concat()`，但是`cncat()`不是将元素添加到现有数组，而是创建并返回一个新数组。此时我们就可以使用`apply()`。
+
+    ```js
+    const array = ['a', 'b'];
+    const elements = [0, 1, 2];
+    array.push.apply(array, elements);
+    console.info(array); // ["a", "b", 0, 1, 2]
+    ```
+
+  - 实例二：[使用 `apply` 和内置函数](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/apply#%E4%BD%BF%E7%94%A8_apply_%E5%92%8C%E5%86%85%E7%BD%AE%E5%87%BD%E6%95%B0)--》避免循环
+
+    ```js
+    // 找出数组中最大/小的数字
+    const numbers = [5, 6, 2, 3, 7];
+    
+    // 使用 Math.min/Math.max 以及 apply 函数时的代码
+    let max = Math.max.apply(null, numbers); // 基本等同于 Math.max(numbers[0], ...) 或 Math.max(5, 6, ..)
+    let min = Math.min.apply(null, numbers);
+    ```
+
+- **call**
+
+  语法：
+
+  ```js
+  function.call(thisArg, arg1, arg2, ...)
+  ```
+
+  参数：
+
+  thisArg：在 *function* 函数运行时使用的 `this` 值。指定为 `null` 或 `undefined` 时会自动替换为指向全局对象，原始值会被包装。--》🦈函数调用者的this指向第一个参数。
+
+  arg1, arg2, ...：参数列表。
+
+  - 实例一：[使用 `call` 方法调用父构造函数](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/call#%E4%BD%BF%E7%94%A8_call_%E6%96%B9%E6%B3%95%E8%B0%83%E7%94%A8%E7%88%B6%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0)
+
+    可以通过调用父构造函数的 `call` 方法来实现继承。
+
+    ```js
+    function Product(name, price) {
+      this.name = name;
+      this.price = price;
+    }
+    
+    function Food(name, price) {
+      Product.call(this, name, price);
+      this.category = 'food';
+    }
+    
+    function Toy(name, price) {
+      Product.call(this, name, price);
+      this.category = 'toy';
+    }
+    
+    var cheese = new Food('feta', 5);
+    var fun = new Toy('robot', 40);
+    ```
+
+  - 实例二：使用`call`方法调用函数并且指定上下文的`this`
+
+    在下面的例子中，当调用 `greet` 方法的时候，该方法的`this`值会绑定到 `obj` 对象。
+
+    ```js
+    function greet() {
+      var reply = [this.animal, 'typically sleep between', this.sleepDuration].join(' ');
+      console.log(reply);
+    }
+    
+    var obj = {
+      animal: 'cats', sleepDuration: '12 and 16 hours'
+    };
+    
+    greet.call(obj);  // cats typically sleep between 12 and 16 hours
+    ```
+
+  - 实例三：[使用 `**call**` 方法调用函数并且不指定第一个参数（`argument）`](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Function/call#%E4%BD%BF%E7%94%A8_call_%E6%96%B9%E6%B3%95%E8%B0%83%E7%94%A8%E5%87%BD%E6%95%B0%E5%B9%B6%E4%B8%94%E4%B8%8D%E6%8C%87%E5%AE%9A%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%8F%82%E6%95%B0%EF%BC%88argument%EF%BC%89)
+
+    在下面的例子中，我们调用了 `display` 方法，但并没有传递它的第一个参数。如果没有传递第一个参数，`this` 的值将会被绑定为全局对象。--》🦈call中不给定参数，则this指向全局对象。
+
+    ```js
+    var sData = 'Wisen';
+    
+    function display() {
+      console.log('sData value is %s ', this.sData);
+    }
+    
+    display.call();  // sData value is Wisen
+    ```
+
+- **bind**
+
+  定义：`**bind()**` 方法创建一个新的函数，在 `bind()` 被调用时，这个新函数的 `this` 被指定为 `bind()` 的第一个参数，而其余参数将作为新函数的参数，供调用时使用。
+
+  语法
+
+  ```
+  function.bind(thisArg[, arg1[, arg2[, ...]]])
+  ```
+
+  实例：
+
+  1. 创建绑定函数
+
+     ```js
+     this.x = 9;    // 在浏览器中，this 指向全局的 "window" 对象
+     var module = {
+       x: 81,
+       getX: function() { return this.x; }
+     };
+     
+     module.getX(); // 81
+     
+     var retrieveX = module.getX;
+     retrieveX();
+     // 返回 9 - 因为函数是在全局作用域中调用的
+     
+     // 创建一个新函数，把 'this' 绑定到 module 对象
+     // 新手可能会将全局变量 x 与 module 的属性 x 混淆
+     var boundGetX = retrieveX.bind(module);
+     boundGetX(); // 81
+     ```
+
+  2. 偏函数
+
+  3. 与setTimeout一起使用
+
+     在默认情况下，使用 [`window.setTimeout()`](https://developer.mozilla.org/zh-CN/docs/Web/API/setTimeout) 时，`this` 关键字会指向 [`window`](https://developer.mozilla.org/zh-CN/docs/Web/API/Window)（或 `global`）对象。
+
+     当类的方法中需要 `this` 指向类的实例时，你可能需要显式地把 `this` 绑定到回调函数，就不会丢失该实例的引用。
+
+     ```js
+     function LateBloomer() {
+       this.petalCount = Math.ceil(Math.random() * 12) + 1;
+     }
+     
+     // 在 1 秒钟后声明 bloom
+     LateBloomer.prototype.bloom = function() {
+       window.setTimeout(this.declare.bind(this), 1000);
+     };
+     
+     LateBloomer.prototype.declare = function() {
+       console.log('I am a beautiful flower with ' +
+         this.petalCount + ' petals!');
+     };
+     
+     var flower = new LateBloomer();
+     flower.bloom();  // 一秒钟后，调用 'declare' 方法
+     ```
+
+     这里创建了一个函数`LateBloomer`，然年添加方法`bloom`并且把`declare`的this绑定到回调函数上，此时不会丢失该实例的引用。
+
+**作用**
+
+`call`、`apply`、`bind`作用是改变函数执行时的上下文，简而言之就是改变函数运行时的`this`指向。
+
+**区别**
+
+**apply**
+
+`apply`接受两个参数，第一个参数是`this`的指向，第二个参数是函数接受的参数，以数组的形式传入
+
+改变`this`指向后原函数会立即执行，且此方法只是临时改变`this`指向一次
+
+```js
+function fn(...args){
+    console.log(this,args);
+}
+let obj = {
+    myname:"张三"
+}
+
+fn.apply(obj,[1,2]); // this会变成传入的obj，传入的参数必须是一个数组；
+fn(1,2) // this指向window
+```
+
+当第一个参数为`null`、`undefined`的时候，默认指向`window`(在浏览器中)
+
+```js
+fn.apply(null,[1,2]); // this指向window
+fn.apply(undefined,[1,2]); // this指向window
+```
+
+**call**
+
+`call`方法的第一个参数也是`this`的指向，后面传入的是一个参数列表
+
+跟`apply`一样，改变`this`指向后原函数会立即执行，且此方法只是临时改变`this`指向一次
+
+```js
+function fn(...args){
+    console.log(this,args);
+}
+let obj = {
+    myname:"张三"
+}
+
+fn.call(obj,1,2); // this会变成传入的obj，传入的参数必须是一个数组；
+fn(1,2) // this指向window
+```
+
+同样的，当第一个参数为`null`、`undefined`的时候，默认指向`window`(在浏览器中)
+
+```js
+fn.call(null,[1,2]); // this指向window
+fn.call(undefined,[1,2]); // this指向window
+```
+
+**bind**
+
+bind方法和call很相似，第一参数也是`this`的指向，后面传入的也是一个参数列表(但是这个参数列表可以分多次传入)
+
+改变`this`指向后不会立即执行，而是返回一个永久改变`this`指向的函数
+
+```js
+function fn(...args){
+    console.log(this,args);
+}
+let obj = {
+    myname:"张三"
+}
+
+const bindFn = fn.bind(obj); // this 也会变成传入的obj ，bind不是立即执行需要执行一次
+bindFn(1,2) // this指向obj
+fn(1,2) // this指向window
+```
+
+**小结**
+
+从上面可以看到，`apply`、`call`、`bind`三者的区别在于：
+
+- 三者都可以改变函数的`this`对象指向
+- 三者第一个参数都是`this`要指向的对象，如果如果没有这个参数或参数为`undefined`或`null`，则默认指向全局`window`
+- 三者都可以传参，但是`apply`是数组，而`call`是参数列表，且`apply`和`call`是一次性传入参数，而`bind`可以分为多次传入
+- `bind`是返回绑定this之后的函数，`apply`、`call` 则是立即执行
+- 应用场景：`call()`用于继承，`apply()`用于和数组有关的情况，`bind()`
+
+`apply`根本区别在于，`call()` 接受一个**参数列表**，而 `apply()` 接受一个**参数的单数组**。
+
+🦈[参考飞鸟](https://lzxjack.top/post?title=call-apply-bind)
+
+**实现**（不理解这个是怎么实现的）
+
+- **call()**
+
+  `call()`方法调用一个对象。简单理解为**调用函数**的方式，但是它可以改变函数的`this`指向。
+
+  - 将第一个参数作为`call`函数内部临时对象`obj`
+  - 给`obj`一个属性`fn`，成为实际执行函数，并将`this`关键字指向这个属性
+  - 执行这个函数，并拿到返回值
+  - 删除函数属性
+  - 返回函数执行的结果
+
+  ```javascript
+  // 实现call
+  Function.prototype.myCall = function (obj, ...args) {
+      // 判断上下文
+      const newObj = obj ? Object(obj) : global;
+      // 将函数设置为对象的属性
+      newObj.fn = this;
+      // 执行这个函数，并拿到返回值
+      const res = newObj.fn(...args);
+      // 删除这个函数属性
+      delete newObj.fn;
+      // 返回值
+      return res;
+  };
+  ```
+
+- **apply()**
+
+  定义和call()一样，只是传入的参数不同，
+
+  `apply`第二个参数是以数组形式传递的，所以基本步骤与`call`一致，不同的是函数执行的时候需要进行判断是否传入了第二个参数。如果有，将其传入并执行；若没有，直接执行。
+
+  ```javascript
+  // 实现apply
+  Function.prototype.myApply = function (obj, arr) {
+      // 判断上下文
+      const newObj = obj ? Object(obj) : global;
+      // 将函数设置为对象的属性
+      newObj.fn = this;
+      // 执行这个函数，并拿到返回值
+      let res;
+      if (arr) {
+          res = newObj.fn(...arr);
+      } else {
+          res = newObj.fn();
+      }
+      // 删除这个函数属性
+      delete newObj.fn;
+      // 返回值
+      return res;
+  };
+  ```
+
+- **bind()**
+
+  `bind()`方法**不会调用函数**。但是能改变函数内部`this`指向。
+
+  当我们只是想改变`this`指向，并且**不想调用**这个函数的时候，可以使用`bind()`。
+
+  ```javascript
+  // 实现bind
+  Function.prototype.MyBind = function (context) {
+      // 调用的方法本身
+      const self = this;
+      // 类数组->真数组
+      const args = Array.prototype.slice.call(arguments, 1);
+      // 中转函数
+      const temp = function () {};
+      const fn = function () {
+          // 将新函数执行时的参数arguments数组化，然后与绑定时的参数合并
+          const newArgs = Array.prototype.slice.call(arguments);
+          // 如果被new调用，this应该是fn的实例
+          return self.apply(this instanceof fn ? this : context || global, args.concat(newArgs));
+      };
+      // 中转原型链
+      temp.prototype = self.prototype;
+      fn.prototype = new temp();
+      return fn;
+  };
+  ```
+
+### 问题16：说说你对正则表达式的理解？应用场景？
+
+ **一、是什么**
+
+用力啊匹配字符串
+
+创建正则表达式的两种方式：
+
+1. 利用字面量创建正则
+
+   ```js
+   // 语法：let 变量 = /模式字符串/标记字符串
+   let patter1 = /at/g
+   ```
+
+2. 构造函数`RegExp`
+
+   ```js
+   const pattern1 = new RegExp('at', 'gi')//全局匹配at并忽略大小写
+   ```
+
+注意：遇到元字符需要转义，采用反斜杠`\`
+
+**二、匹配规则**
+
+ **match()** 方法检索返回一个字符串匹配正则表达式的结果。
+
+常见的校验规则如下：
+
+| 规则        | 描述                                                  |
+| ----------- | ----------------------------------------------------- |
+| \           | 转义                                                  |
+| ^           | 匹配输入的开始                                        |
+| $           | 匹配输入的结束                                        |
+| *           | 匹配前一个表达式 0 次或多次                           |
+| +           | 匹配前面一个表达式 1 次或者多次。等价于 `{1,}`        |
+| ?           | 匹配前面一个表达式 0 次或者 1 次。等价于`{0,1}`       |
+| .           | 默认匹配除换行符之外的任何单个字符                    |
+| x(?=y)      | 匹配'x'仅仅当'x'后面跟着'y'。这种叫做先行断言         |
+| (?<=y)x     | 匹配'x'仅当'x'前面是'y'.这种叫做后行断言              |
+| x(?!y)      | 仅仅当'x'后面不跟着'y'时匹配'x'，这被称为正向否定查找 |
+| (?<!*y*)*x* | 仅仅当'x'前面不是'y'时匹配'x'，这被称为反向否定查找   |
+| x\|y        | 匹配‘x’或者‘y’                                        |
+| {n}         | n 是一个正整数，匹配了前面一个字符刚好出现了 n 次     |
+| {n,}        | n是一个正整数，匹配前一个字符至少出现了n次            |
+| {n,m}       | n 和 m 都是整数。匹配前面的字符至少n次，最多m次       |
+| [xyz]       | 一个字符集合。匹配方括号中的任意字符                  |
+| [^xyz]      | 匹配任何没有包含在方括号中的字符                      |
+| \b          | 匹配一个词的边界，例如在字母和空格之间                |
+| \B          | 匹配一个非单词边界                                    |
+| \d          | 匹配一个数字                                          |
+| \D          | 匹配一个非数字字符                                    |
+| \f          | 匹配一个换页符                                        |
+| \n          | 匹配一个换行符                                        |
+| \r          | 匹配一个回车符                                        |
+| \s          | 匹配一个空白字符，包括空格、制表符、换页符和换行符    |
+| \S          | 匹配一个非空白字符                                    |
+| \w          | 匹配一个单字字符（字母、数字或者下划线）              |
+| \W          | 匹配一个非单字字符                                    |
+
+**正则表达式标记**
+
+| 标志 | 描述                                                      |
+| :--- | :-------------------------------------------------------- |
+| `g`  | 全局搜索。                                                |
+| `i`  | 不区分大小写搜索。                                        |
+| `m`  | 多行搜索。                                                |
+| `s`  | 允许 `.` 匹配换行符。                                     |
+| `u`  | 使用`unicode`码的模式进行匹配。                           |
+| `y`  | 执行“粘性(`sticky`)”搜索,匹配从目标字符串的当前位置开始。 |
+
+使用方法如下：
+
+```js
+var re = /pattern/flags;
+var re = new RegExp("pattern", "flags");
+```
+
+在了解下正则表达式基本的之外，还可以掌握几个正则表达式的特性：
+
+- 贪婪模式
+
+  在了解贪婪模式前，首先举个例子：
+
+  ```js
+  const reg = /ab{1,3}c/
+  ```
+
+  在匹配过程中，尝试可能的顺序是从多往少的方向去尝试。首先会尝试`bbb`，然后再看整个正则是否能匹配。不能匹配时，吐出一个`b`，即在`bb`的基础上，再继续尝试，以此重复
+
+  如果多个贪婪量词挨着，则深度优先搜索
+
+  ```js
+  const string = "12345";
+  const regx = /(\d{1,3})(\d{1,3})/;// \d表示匹配一个数字
+  console.log( string.match(reg) );
+  // => ["12345", "123", "45", index: 0, input: "12345"]
+  ```
+
+  其中，前面的`\d{1,3}`匹配的是"123"，后面的`\d{1,3}`匹配的是"45"
+
+- 懒惰模式
+
+  惰性量词就是在贪婪量词后面加个问号。表示==尽可能少的匹配==
+
+  ```js
+  var string = "12345";
+  var regex = /(\d{1,3}?)(\d{1,3})/;
+  console.log( string.match(regex) );
+  // => ["1234", "1", "234", index: 0, input: "12345"]
+  ```
+
+  其中`\d{1,3}?`只匹配到一个字符"1"，而后面的`\d{1,3}`匹配了"234"。
+
+- 分组
+
+  分组主要是用过`()`进行实现，比如`beyond{3}`，是匹配`d`字母3次。而`(beyond){3}`是匹配`beyond`三次
+
+  在`()`内使用`|`达到或的效果，如`(abc | xxx)`可以匹配`abc`或者`xxx`
+
+  反向引用，巧用`$`分组捕获--》🦈有意思，可以用于算法
+
+  ```js
+  let str = "John Smith";
+  
+  // 交换名字和姓氏
+  console.log(str.replace(/(john) (smith)/i, '$2, $1')) // Smith, John
+  ```
+
+**三、匹配方法**
+
+正则表达式常被用于某些方法，我们可以分成两类：
+
+- 字符串（str）方法：`match`、`matchAll`、`search`、`replace`、`split`
+- 正则对象下（regexp）的方法：`test`、`exec`
+
+| 方法     | 描述                                                         |
+| :------- | :----------------------------------------------------------- |
+| exec     | 一个在字符串中执行查找匹配的RegExp方法，它返回一个数组（未匹配到则返回 null）。 |
+| test     | 一个在字符串中测试是否匹配的RegExp方法，它返回 true 或 false。 |
+| match    | 一个在字符串中执行查找匹配的String方法，它返回一个数组，在未匹配到时会返回 null。 |
+| matchAll | 一个在字符串中执行查找所有匹配的String方法，它返回一个迭代器（iterator）。 |
+| search   | 一个在字符串中测试匹配的String方法，它返回匹配到的位置索引，或者在失败时返回-1。 |
+| replace  | 一个在字符串中执行查找匹配的String方法，并且使用替换字符串替换掉匹配到的子字符串。 |
+| split    | 一个使用正则表达式或者一个固定字符串分隔一个字符串，并将分隔后的子字符串存储到数组中的 `String` 方法。 |
+
+**str.match(regexp)**
+
+`str.match(regexp)` 方法在字符串 `str` 中找到匹配 `regexp` 的字符
+
+如果 `regexp` 不带有 `g` 标记，则它以数组的形式返回第一个匹配项，其中包含分组和属性 `index`（匹配项的位置）、`input`（输入字符串，等于 `str`）
+
+```js
+let str = "I love JavaScript";
+
+let result = str.match(/Java(Script)/);
+
+console.log( result[0] );     // JavaScript（完全匹配）
+console.log( result[1] );     // Script（第一个分组）
+console.log( result.length ); // 2
+
+// 其他信息：
+console.log( result.index );  // 7（匹配位置）
+console.log( result.input );  // I love JavaScript（源字符串）
+```
+
+如果 `regexp` 带有 `g` 标记，则它将所有匹配项的数组作为字符串返回，而不包含分组和其他详细信息
+
+```js
+let str = "I love JavaScript";
+
+let result = str.match(/Java(Script)/g);
+
+console.log( result[0] ); // JavaScript
+console.log( result.length ); // 1
+```
+
+如果没有匹配项，则无论是否带有标记 `g` ，都将返回 `null`
+
+```js
+let str = "I love JavaScript";
+
+let result = str.match(/HTML/);
+
+console.log(result); // null
+```
+
+**str.matchAll(regexp)**
+
+返回一个包含所有匹配正则表达式的结果及分组捕获组的迭代器
+
+```js
+const regexp = /t(e)(st(\d?))/g;
+const str = 'test1test2';
+
+const array = [...str.matchAll(regexp)];
+
+console.log(array[0]);
+// expected output: Array ["test1", "e", "st1", "1"]
+
+console.log(array[1]);
+// expected output: Array ["test2", "e", "st2", "2"]
+```
+
+**str.search(regexp)**
+
+返回第一个匹配项的位置，如果未找到，则返回 `-1`
+
+```js
+let str = "A drop of ink may make a million think";
+
+console.log( str.search( /ink/i ) ); // 10（第一个匹配位置）
+```
+
+这里需要注意的是，`search` 仅查找第一个匹配项
+
+**str.replace(regexp)**
+
+替换与正则表达式匹配的子串，并返回替换后的字符串。在不设置全局匹配`g`的时候，只替换第一个匹配成功的字符串片段
+
+```js
+const reg1=/javascript/i;
+const reg2=/javascript/ig;
+console.log('hello Javascript Javascript Javascript'.replace(reg1,'js'));
+//hello js Javascript Javascript
+console.log('hello Javascript Javascript Javascript'.replace(reg2,'js'));
+//hello js js js
+```
+
+**str.split(regexp)**
+
+使用正则表达式（或子字符串）作为分隔符来分割字符串
+
+```js
+console.log('12, 34, 56'.split(/,\s*/)) // 数组 ['12', '34', '56']
+```
+
+**regexp.exec(str)**
+
+`regexp.exec(str)` 方法返回字符串 `str` 中的 `regexp` 匹配项，与以前的方法不同，它是在正则表达式而不是字符串上调用的
+
+根据正则表达式是否带有标志 `g`，它的行为有所不同
+
+如果没有 `g`，那么 `regexp.exec(str)` 返回的第一个匹配与 `str.match(regexp)` 完全相同
+
+如果有标记 `g`，调用 `regexp.exec(str)` 会返回第一个匹配项，并将紧随其后的位置保存在属性`regexp.lastIndex` 中。 下一次同样的调用会从位置 `regexp.lastIndex` 开始搜索，返回下一个匹配项，并将其后的位置保存在 `regexp.lastIndex` 中
+
+```js
+let str = 'More about JavaScript at https://javascript.info';
+let regexp = /javascript/ig;
+
+let result;
+
+while (result = regexp.exec(str)) {
+  console.log( `Found ${result[0]} at position ${result.index}` );
+  // Found JavaScript at position 11
+  // Found javascript at position 33
+}
+```
+
+**regexp.test(str)**
+
+查找匹配项，然后返回 `true/false` 表示是否存在
+
+```js
+let str = "I love JavaScript";
+
+// 这两个测试相同
+console.log( /love/i.test(str) ); // true
+```
+
+**四、[应用场景](https://vue3js.cn/interview/JavaScript/regexp.html#%E5%9B%9B%E3%80%81%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF)**
+
+### 问题17：说说你对事件循环的理解
+
+事件循环顺序，先执行同步任务再执行异步任务，异步任务又分为宏任务和微任务，先执行微任务再执行宏任务，所以执行顺序为：同步任务 --》 微任务 --》 宏任务
+
+**一、是什么**
+
+首先，`JavaScript`是一门单线程的语言，意味着同一时间内只能做一件事，但是这并不意味着单线程就是阻塞，而实现单线程非阻塞的方法就是事件循环
+
+在`JavaScript`中，所有的任务都可以分为
+
+- 同步任务：立即执行的任务，同步任务一般会直接进入到主线程中执行
+- 异步任务：异步执行的任务，比如`ajax`网络请求，`setTimeout`定时函数等
+
+同步任务与异步任务的运行流程图如下：
+
+![img](面试JavaScript.assets/61efbc20-7cb8-11eb-85f6-6fac77c0c9b3.png)
+
+从上面我们可以看到，同步任务进入主线程，即主执行栈，异步任务进入任务队列，主线程内的任务执行完毕为空，会去任务队列读取对应的任务，推入主线程执行。上述过程的不断重复就事件循环
+
+**二、宏任务与微任务**
+
+如果将任务划分为同步任务和异步任务并不是那么的准确，举个例子：
+
+```js
+console.log(1)
+
+setTimeout(()=>{
+    console.log(2)
+}, 0)
+
+new Promise((resolve, reject)=>{
+    console.log('new Promise')
+    resolve()
+}).then(()=>{
+    console.log('then')
+})
+
+console.log(3)
+```
+
+如果按照上面流程图来分析代码，我们会得到下面的执行步骤：
+
+- `console.log(1)`，同步任务，主线程中执行
+- `setTimeout()` ，异步任务，放到 `Event Table`，0 毫秒后`console.log(2)`回调推入 `Event Queue` 中
+- `new Promise` ，同步任务，主线程直接执行
+- `.then` ，异步任务，放到 `Event Table`
+- `console.log(3)`，同步任务，主线程执行
+
+所以按照分析，它的结果应该是 `1` => `'new Promise'` => `3` => `2` => `'then'`
+
+但是实际结果是：`1`=>`'new Promise'`=> `3` => `'then'` => `2`
+
+出现分歧的原因在于异步任务执行顺序，事件队列其实是一个“先进先出”的数据结构，排在前面的事件会优先被主线程读取
+
+例子中 `setTimeout`回调事件是先进入队列中的，按理说应该先于 `.then` 中的执行，但是结果却偏偏相反
+
+原因在于异步任务还可以细分为微任务与宏任务
+
+**微任务**
+
+一个需要异步执行的函数，执行时机是在主函数执行结束之后、当前宏任务结束之前
+
+常见的微任务有：
+
+- Promise.then
+- MutaionObserver
+- Object.observe（已废弃；Proxy 对象替代）
+- process.nextTick（Node.js）
+
+**宏任务**
+
+宏任务的时间粒度比较大，执行的时间间隔是不能精确控制的，对一些高实时性的需求就不太符合
+
+常见的宏任务有：
+
+- script (可以理解为外层同步代码)
+- setTimeout/setInterval
+- UI rendering/UI事件
+- postMessage、MessageChannel
+- setImmediate、I/O（Node.js）
+
+这时候，事件循环，宏任务，微任务的关系如图所示
+
+![img](面试JavaScript.assets/6e80e5e0-7cb8-11eb-85f6-6fac77c0c9b3.png)
+
+按照这个流程，它的执行机制是：
+
+- 执行一个宏任务，如果遇到微任务就将它放到微任务的事件队列中
+- 当前宏任务执行完成后，会查看微任务的事件队列，然后将里面的所有微任务依次执行完
+
+回到上面的题目
+
+```js
+console.log(1)
+setTimeout(()=>{
+    console.log(2)
+}, 0)
+new Promise((resolve, reject)=>{
+    console.log('new Promise')
+    resolve()
+}).then(()=>{
+    console.log('then')
+})
+console.log(3)
+```
+
+流程如下
+
+```js
+// 遇到 console.log(1) ，直接打印 1
+// 遇到定时器，属于新的宏任务，留着后面执行
+// 遇到 new Promise，这个是直接执行的，打印 'new Promise'
+// .then 属于微任务，放入微任务队列，后面再执行
+// 遇到 console.log(3) 直接打印 3
+// 好了本轮宏任务执行完毕，现在去微任务列表查看是否有微任务，发现 .then 的回调，执行它，打印 'then'
+// 当一次宏任务执行完，再去执行新的宏任务，这里就剩一个定时器的宏任务了，执行它，打印 2
+```
+
+**三、async与await**
+
+`async` 是异步的意思，`await`则可以理解为 `async wait`。所以可以理解`async`就是用来声明一个异步方法，而 `await`是用来等待异步方法执行
+
+**async**
+
+`async`函数返回一个`promise`对象，下面两种方法是等效的
+
+```js
+function f() {
+    return Promise.resolve('TEST');
+}
+
+// asyncF is equivalent to f!
+async function asyncF() {
+    return 'TEST';
+}
+```
+
+**await**
+
+正常情况下，`await`命令后面是一个 `Promise`对象，返回该对象的结果。如果不是 `Promise`对象，就直接返回对应的值
+
+```js
+async function f(){
+    // 等同于
+    // return 123
+    return await 123
+}
+f().then(v => console.log(v)) // 123
+```
+
+不管`await`后面跟着的是什么，`await`都会阻塞后面的代码
+
+```js
+async function fn1 (){
+    console.log(1)
+    await fn2()
+    console.log(2) // 阻塞
+}
+
+async function fn2 (){
+    console.log('fn2')
+}
+
+fn1()
+console.log(3)
+```
+
+上面的例子中，`await` 会阻塞下面的代码（即加入微任务队列），先执行 `async`外面的同步代码，同步代码执行完，再回到 `async` 函数中，再执行之前阻塞的代码
+
+所以上述输出结果为：`1`，`fn2`，`3`，`2`
+
+🦈执行流程：调用函数`fn1()`直接执行同步任务输出==1==，遇到`await`阻塞后面的代码加入到微任务队列，`await`后面是一个值不是`Promise`对象直接返回（是同步任务直接执行）输出==`'fn2'`==，继续执行同步任务输出==3==，同步任务执行结束，执行微任务，输出==2==。
+
+**四、流程分析**
+
+```js
+async function async1() {
+    console.log('async1 start')
+    await async2()
+    console.log('async1 end')
+}
+async function async2() {
+    console.log('async2')
+}
+console.log('script start')
+setTimeout(function () {
+    console.log('settimeout')
+})
+async1()
+//=======================================
+new Promise(function (resolve) {
+    console.log('promise1')
+    resolve()
+}).then(function () {
+    console.log('promise2')
+})
+console.log('script end')
+```
+
+🦈执行流程：
+
+`'script start'` --》`'async1 start'` --》`'async2'` --》`'promise1'`--》 `'script end'` --》 `'async1 end'` --》`'promise2'` --》`'settimeout'`。
+
+自己动手画画
+
+分析过程：
+
+1. 执行整段代码，遇到 `console.log('script start')` 直接打印结果，输出 `script start`
+2. 遇到定时器了，它是宏任务，先放着不执行
+3. 遇到 `async1()`，执行 `async1` 函数，先打印 `async1 start`，下面遇到`await`怎么办？先执行 `async2`，打印 `async2`，然后阻塞下面代码（即加入微任务列表），跳出去执行同步代码 🦈--》这里因为async2()返回值不是一个Promise对象，所以是同步任务直接执行。
+4. 跳到 `new Promise` 这里，直接执行，打印 `promise1`，下面遇到 `.then()`，它是微任务，放到微任务列表等待执行
+5. 最后一行直接打印 `script end`，现在同步代码执行完了，开始执行微任务，即 `await`下面的代码，打印 `async1 end`
+6. 继续执行下一个微任务，即执行 `then` 的回调，打印 `promise2`
+7. 上一个宏任务所有事都做完了，开始下一个宏任务，就是定时器，打印 `settimeout`
+
+所以最后的结果是：`script start`、`async1 start`、`async2`、`promise1`、`script end`、`async1 end`、`promise2`、`settimeout`
+
+### 问题18：举例说明你对尾递归的理解，有哪些应用场景
+
+[参考](https://vue3js.cn/interview/JavaScript/tail_recursion.html#%E4%B8%80%E3%80%81%E9%80%92%E5%BD%92)
+
+### 问题19：说说 JavaScript 中内存泄漏的几种情况？
+
+看MDN的内存管理
+
+**垃圾回收**
+
+垃圾回收是删除那些不再被其他对象引用的对象。
+在这里，“对象”的概念不仅特指 JavaScript 对象，还包括函数作用域（或者全局词法作用域）。
+
+**内存管理**
+
+内存生命周期
+
+分配、使用、释放
+
+回收
+
+- 引用计数
+
+  对象是否不再需要
+
+  限制：循环引用
+
+- 标记清理
+
+  对象是否可以获得
+
+  垃圾回收器将定期从根（全局对象）开始，找所有从根开始引用的对象，然后找这些对象引用的对象……从根开始，垃圾回收器将找到所有可以获得的对象和收集所有不能获得的对象。---》对不可获得的对象进行清除。
+
+  循环引用解决：函数调用返回之后，两个对象==从全局对象出发无法获取==。会被垃圾回收器回收。
+
+
+
