@@ -1,4 +1,4 @@
-# 1.二分查找
+# 一、二分查找
 4 11 53
 **剑指 Offer 04. 二维数组中的查找**
 应该是双指针解法，不是二分查找方法
@@ -132,7 +132,7 @@ var missingNumber = function(nums) {
 };
 ```
 
-# 2.链表
+# 二、链表
 ## 常用方法
 - 双指针
 - 重点：
@@ -277,5 +277,105 @@ var getIntersectionNode = function(headA, headB) {
         nodeB = nodeB===null ? headA : nodeB.next;
     }
     return nodeA;
+};
+```
+
+# 三、集合
+
+**剑指 Offer 50. 第一个只出现一次的字符**
+方法一：正常Map集合
+思路：
+第一次遍历字符串，用Map统计出现的次数
+第二次遍历Map，返回第一个次数为1的字符
+若遍历Map结束后，还没有找到，则返回" "
+```js
+var firstUniqChar = function(s) {
+    // 思路：遍历字符串，记录字符出现的次数
+    const map = new Map()
+    let res = ' '
+    for(let str of [...s]){
+        map.set(str, (map.get(str) || 0) + 1)
+    }
+    // 再次遍历把第一个出现次数为 1 的输出
+    for(let str of s){
+        if(map.get(str) === 1){
+            res = str
+            break;
+        }
+    }
+    return res
+};
+```
+
+方法二：借用indexOf()方法
+```js
+var firstUniqChar = function(s) {
+    // 借用indexOf()方法，查找元素第一次出现的索引值，没有则返回-1
+    for(let i=0; i < s.length; i++){
+        // 对遍历到元素，查找第一次出现时的索引值
+        let firstInd = s.indexOf(s[i])
+        // 从查找到的第一个位置后面再次查找
+        let sedInd = s.indexOf(s[i], firstInd+1)
+        // 如果后面都没有，则该值就是所要的结果
+        if(sedInd === -1) return s[i]
+    }
+    return ' '
+};
+```
+**剑指 Offer 56 - II. 数组中数字出现的次数 II**
+方法一：Map集合
+```js
+var singleNumber = function(nums) {
+    // 用50T的解法就行
+    const map = new Map()
+    let res;
+    for(let num of nums){
+        map.set(num, (map.get(num) || 0) + 1)
+    }
+    for(let num of nums){
+        if(map.get(num) === 1) res = num
+    }
+    return res
+};
+```
+方法二：indexOf()
+```js
+var singleNumber = function(nums) {
+    // 用50T的解法就行
+    let res;
+    for(let num of nums){
+        let firInd = nums.indexOf(num)
+        let sedInd = nums.indexOf(num, firInd + 1)
+        if(sedInd === -1) res = num
+    }
+    return res
+};
+```
+
+**剑指 Offer 56 - I. 数组中数字出现的次数**
+方法一：Map集合
+```js
+var singleNumbers = function(nums) {
+    const map = new Map()
+    const res = []
+    for(let num of nums){
+        map.set(num, (map.get(num) || 0) + 1)
+    }
+    for(let num of nums){
+        if(map.get(num) === 1) res.push(num)
+    }
+    return res
+};
+```
+方法二：indexOF()
+```js
+var singleNumbers = function(nums) {
+    const res = []
+    for(let num of nums){
+        let firInd = nums.indexOf(num)
+        let sedInd = nums.indexOf(num, firInd + 1)
+        if(sedInd === -1) res.push(num)
+    }
+    return res;
 };
 ```
