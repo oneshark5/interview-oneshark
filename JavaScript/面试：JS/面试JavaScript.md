@@ -4109,8 +4109,328 @@ Cookie是存储在浏览器中的数据，打开浏览器是可以查询到的�
 
    ![1656210699959](面试JavaScript.assets/1656210699959.png)
 
+存在问题：
+
+用户量变大，当特定时间大量用户访问服务器的时候，服务器就会面临需要存储大量Session ID在服务器里，当一台服务器存储超载时，就需要分享Session ID给其他服务器，但是分享也不方便，就采用数据库存储`Session ID`，但是当数据库崩溃时就会影响服务器获取Session ID。所以出现了JWT （JSON Web Token）
+
+**JWT**
+
+流程：
+
+1. 用户登录，客户端发送请求到服务器，服务器生成一个JWT，只保存`JWT`签名的密文，然后将JWT发送给客户端。
+
+2. 浏览器以Cookie或者Storage的形式存储（假设以Cookie形式存储）
+
+3. 客户端每次发送请求都会把JWT发送给服务器，则不需要输入账户密码。Token存储在用户这里。
+
+   ![1656249567668](面试JavaScript.assets/1656249567668.png)
+
+安全性：
+
+组成：
+
+![1656249636923](面试JavaScript.assets/1656249636923.png)
+
+![1656249747800](面试JavaScript.assets/1656249747800.png)
+
+编码，很容易就解码，所以
+
+两端编码进行算法运算，得到签名信息，保存在服务端中。
+
+**小结**
+
+- Session保存在服务器端
+- Cookie是数据载体，把Session放入Cookie中送到客户端；Cookie跟着HTTP的每个请求发送到服务端
+- Token在服务器中生成，但保存在客户端中，存储在Cookie或者Storage中
 
 **一、方式**
 
+`javaScript`本地缓存的方法我们主要讲述以下四种：
+
+- cookie
+- sessionStorage
+- localStorage
+- indexedDB
+
+**cookie**
+
+🦈Cookie的工作机制是用户识别和状态管理。服务端为了管理客户端的状态，把一些数据临时存储在用户的计算机内
+
+`Cookie`，类型为「小型文本文件」，指某些网站为了辨别用户身份而储存在用户本地终端上的数据。是为了解决 `HTTP`无状态导致的问题
+
+作为一段一般不超过 4KB 的小型文本数据，它由一个名称（Name）、一个值（Value）和其它几个用于控制 `cookie`有效期、安全性、使用范围的可选属性组成
+
+但是`cookie`在每次请求中都会被发送，如果不使用 `HTTPS`并对其加密，其保存的信息很容易被窃取，导致安全风险。举个例子，在一些使用 `cookie`保持登录态的网站上，如果 `cookie`被窃取，他人很容易利用你的 `cookie`来假扮成你登录网站
+
+关于`cookie`常用的属性如下：
+
+- Expires 用于设置 Cookie 的过期时间
+
+```js
+Expires=Wed, 21 Oct 2015 07:28:00 GMT
+```
+
+- Max-Age 用于设置在 Cookie 失效之前需要经过的秒数（优先级比`Expires`高）
+
+```js
+Max-Age=604800
+```
+
+- `Domain`指定了 `Cookie` 可以送达的主机名
+- `Path`指定了一个 `URL`路径，这个路径必须出现在要请求的资源的路径中才可以发送 `Cookie` 首部
+
+```js
+Path=/docs   # /docs/Web/ 下的资源会带 Cookie 首部
+```
+
+- 标记为 `Secure`的 `Cookie`只应通过被`HTTPS`协议加密过的请求发送给服务端
+
+通过上述，我们可以看到`cookie`又开始的作用并不是为了缓存而设计出来，只是借用了`cookie`的特性实现缓存
+
+关于`cookie`的使用如下：
+
+```js
+document.cookie = '名字=值';
+```
+
+关于`cookie`的修改，首先要确定`domain`和`path`属性都是相同的才可以，其中有一个不同得时候都会创建出一个新的`cookie`
+
+```js
+Set-Cookie:name=aa; domain=aa.net; path=/  # 服务端设置
+document.cookie =name=bb; domain=aa.net; path=/  # 客户端设置
+```
+
+最后`cookie`的删除，最常用的方法就是给`cookie`设置一个过期的事件，这样`cookie`过期后会被浏览器删除。
+
+**localStorage**
+
+`HTML5`新方法，IE8及以上浏览器都兼容;--》🦈持久化存储数据
+
+- 生命周期：持久化的本地存储，除非主动删除数据，否则数据是永远不会过期的
+- 存储的信息在同一域中是共享的
+- 当本页操作（新增、修改、删除）了`localStorage`的时候，本页面不会触发`storage`事件,但是别的页面会触发`storage`事件。
+- 大小：5M（跟浏览器厂商有关系）
+- `localStorage`本质上是对字符串的读取，如果存储内容多的话会消耗内存空间，会导致页面变卡
+- 受同源策略的限制
+
+`localStorage`的使用
+
+- 存储数据
+
+  ```js
+  // 使用方法
+  localStorage.setItem('name','bobo')
+  // 使用属性
+  localStorage.name = 'bobo'
+  ```
+
+- 获取数据
+
+  ```js
+  // 使用方法
+  localStorage.getItem('name','bobo')
+  // 使用属性
+  let name = localStorage.name
+  ```
+
+- 获取键名
+
+  ```js
+  localStorage.key(0) //获取第一个键名
+  ```
+
+- 删除
+
+  ```js
+  localStorage.removeItem('username')
+  ```
+
+- 一次性清除所有存储
+
+  ```js
+  localStorage.clear()
+  ```
+
+缺点
+
+- 无法像`Cookie`一样设置过期时间
+- 只能存入字符串，无法直接存对象
+
+```js
+localStorage.setItem('key', {name: 'value'});
+console.log(localStorage.getItem('key')); // '[object, Object]'
+```
+
+**sessionStorage**
+
+存储会话数据
+
+`sessionStorage`和 `localStorage`使用方法基本一致，唯一不同的是生命周期，一旦页面（会话）关闭，`sessionStorage` 将会删除数据。
+
+**indexedDB**
+
+🦈存储结构化数据
+
+虽然 `Web Storage`对于存储较少量的数据很有用，但对于存储更大量的结构化数据来说，这种方法不太有用。`IndexedDB`提供了一个解决方案。
+
+使用方法
+
+1. 创建对象存储
+2. 创建事物操作数据
+
+```js
+// 给定一定数据
+let user = {
+  username:'bobo', //作为键，必须唯一，访问数据的凭证
+  password:'2525'
+}
+// 1.创建对象存储
+let request = indexedDB.open('admin', version)
+request.onupgradeneeded = (event) => {
+	
+}...
+```
+
+扩展：
+
+事物：根据键取得一条数据
+
+游标：指向结果集的指针，获取多条数据。
+
+键范围：管理游标，指定游标索引的位置，根据方法缺点范围，获取该范围内的数据。
+
 **二、区别**
+
+关于`cookie`、`sessionStorage`、`localStorage`三者的区别主要如下：
+
+- 存储大小：`cookie`数据大小不能超过`4k`，`sessionStorage`和`localStorage`虽然也有存储大小的限制，但比`cookie`大得多，可以达到5M或更大
+- 有效时间：`localStorage`存储持久数据，浏览器关闭后数据不丢失除非主动删除数据； `sessionStorage`数据在当前浏览器窗口关闭后自动删除；`cookie`设置的`cookie`过期时间之前一直有效，即使窗口或浏览器关闭
+- 数据与服务器之间的交互方式，`cookie`的数据会自动的传递到服务器，服务器端也可以写`cookie`到客户端； `sessionStorage`和`localStorage`不会自动把数据发给服务器，仅在本地保存
+
 **三、应用场景**
+
+在了解了上述的前端的缓存方式后，我们可以看看针对不对场景的使用选择：
+
+- 标记用户与跟踪用户行为的情况，推荐使用`cookie`
+- 适合长期保存在本地的数据（令牌），推荐使用`localStorage`
+- 敏感账号一次性登录，推荐使用`sessionStorage`
+- 存储大量数据的情况、在线文档（富文本编辑器）保存编辑历史的情况，推荐使用`indexedDB`
+
+### 问题21：说说你对函数式编程的理解？优缺点？
+
+![img](面试JavaScript.assets/ec0f6e80-8534-11eb-85f6-6fac77c0c9b3.png)
+
+**柯里化**
+
+柯里化是把一个多参数函数转化成一个嵌套的一元函数的过程。
+
+一个二元函数如下：
+
+```js
+let fn = (x,y)=>x+y;
+```
+
+转化成柯里化函数如下：
+
+```js
+const curry = function(fn){
+    return function(x){
+        return function(y){
+            return fn(x,y);
+        }
+    }
+}
+let myfn = curry(fn);
+console.log( myfn(1)(2) );
+```
+
+代码思路：首先我们调用了`curry()`函数并且传入参数fn，就预处理了x+y，然后返回的是一个函数`function(x)`部分，然后再调用`myfn(1)`传入参数1，返回`function(y)`部分，再次调用`myfn(1)(2)`传入参数2，返回 `fn(x,y)`执行x+y，输出3。
+
+上面的`curry`函数只能处理二元情况，下面再来实现一个实现多参数的情况
+
+```js
+// 多参数柯里化；
+const curry = function(fn){
+    return function curriedFn(...args){
+        if(args.length<fn.length){
+            return function(){
+                return curriedFn(...args.concat([...arguments]));
+            }
+        }
+        return fn(...args);
+    }
+}
+const fn = (x,y,z,a)=>x+y+z+a;
+const myfn = curry(fn);
+console.log(myfn(1)(2)(3)(1));
+```
+
+关于柯里化函数的意义如下：
+
+- 让纯函数更纯，每次接受一个参数，松散解耦
+- 惰性执行
+
+柯里化函数面试题（上面的多参数柯里化就是答案）
+
+add(1)(2)(3)(4)(5)(6); // => 21
+add(1, 2)(3, 4)(5, 6); // => 21
+add(1, 2, 3, 4, 5, 6); // => 21
+
+**组合与管道**
+
+组合函数，目的是将多个函数组合成一个函数
+
+举个简单的例子：
+
+```js
+function afn(a){
+    return a*2;
+}
+function bfn(b){
+    return b*3;
+}
+const compose = (a,b)=>c=>a(b(c));
+let myfn =  compose(afn,bfn);
+console.log( myfn(2));
+```
+
+可以看到`compose`实现一个简单的功能：形成了一个新的函数，而这个函数就是一条从 `bfn -> afn` 的流水线
+
+下面再来看看如何实现一个多函数组合：
+
+```js
+const compose = (...fns)=>val=>fns.reverse().reduce((acc,fn)=>fn(acc),val);
+
+// 🦈实现下逻辑
+const compose = (...fns) => {
+	val => {
+		fns.reverse().reduce((acc, fn) => fn(acc),val)
+  }
+}
+```
+
+`compose`执行是从右到左的。而管道函数，执行顺序是从左到右执行的
+
+```js
+const pipe = (...fns)=>val=>fns.reduce((acc,fn)=>fn(acc),val);
+```
+
+组合函数与管道函数的意义在于：可以把很多小函数组合起来完成更复杂的逻辑
+
+**三、优缺点**
+
+优点
+
+- 更好的管理状态：因为它的宗旨是无状态，或者说更少的状态，能最大化的减少这些未知、优化代码、减少出错情况
+- 更简单的复用：固定输入->固定输出，没有其他外部变量影响，并且无副作用。这样代码复用时，完全不需要考虑它的内部实现和外部影响
+- 更优雅的组合：往大的说，网页是由各个组件组成的。往小的说，一个函数也可能是由多个小函数组成的。更强的复用性，带来更强大的组合性
+- 隐性好处。减少代码量，提高维护性
+
+缺点：
+
+- 性能：函数式编程相对于指令式编程，性能绝对是一个短板，因为它往往会==对一个方法进行过度包装==，从而产生上下文切换的性能开销
+- 资源占用：在 JS 中为了实现对象状态的不可变，往往会创建新的对象，因此，它对垃圾回收所产生的压力远远超过其他编程方式
+- 递归陷阱：在函数式编程中，为了实现迭代，通常会采用递归操作
+
+### 问题22：Javascript中如何实现函数缓存？函数缓存有哪些应用场景？
+
