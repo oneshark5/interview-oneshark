@@ -4475,3 +4475,276 @@ const num2 = calc(100,200) // 缓存得到的结果
 - 对于具有有限且高度重复输入范围的函数
 - 对于具有重复输入值的递归函数
 - 对于纯函数，即每次使用特定输入调用时返回相同输出的函数
+
+### 问题23：说说 Javascript 数字精度丢失的问题，如何解决？
+
+精度丢失：例如计算机无法存储一个无限循环的值，只能保存其近似值，当再次取出时就会出现精度丢失的问题。
+
+**浮点数**
+
+27.0转化成二进制为11011.0 ，科学计数法表示为：
+
+![img](面试JavaScript.assets/37007090-86f4-11eb-ab90-d9ae814b240d.png)
+
+前面讲到，`javaScript`存储方式是双精度浮点数，其长度为8个字节，即64位比特
+
+64位比特又可分为三个部分：
+
+- 符号位S：第 1 位是正负数符号位（sign），0代表正数，1代表负数
+- 指数位E：中间的 11 位存储指数（exponent），用来表示次方数，可以为正负数。在双精度浮点数中，指数的固定偏移量为1023
+- 尾数位M：最后的 52 位是尾数（mantissa），超出的部分自动进一舍零
+
+如下图所示：
+
+![img](面试JavaScript.assets/430d0100-86f4-11eb-85f6-6fac77c0c9b3.png)
+
+**误差来源**
+
+在`JavaScript`中，数值类型`Number`采用64位双精度浮点数编码，存储双精度浮点数需要先把十进制转成二进制，把小数转成二进制时，因为小数点的位置不是固定的，为固定小数点位置，采用科学计数法，
+
+![img](面试JavaScript.assets/1b4b1620-86f4-11eb-ab90-d9ae814b240d.png)
+
+在计算机存储二进制的科学计数法时，因为存储时有位数限制（64位）而小数部分只能保留52位 + 符号位（即保留53位有效数字，保留的位数是有限的），并且某些十进制的浮点数在转换为二进制数时会出现无限循环，会造成二进制的舍入操作(0舍1入)，当再转换为十进制时就造成了计算误差。
+
+**解决方法**
+
+指定精度范围和`Number.EPSILON`方法
+
+- `1.4000000000000001` 当拿到一个不精确的小数时，对于类似的数据我们可以采用`toPrecision` 凑整并 `parseFloat` 转成数字后再显示.
+
+  ```js
+  parseFloat(1.4000000000000001.toPrecision(12)) === 1.4  // True
+  ```
+
+  `toPrecision()` 方法以指定的精度返回该数值对象的字符串表示。
+  numObj.toPrecision(precision)；参数用来指定有效数个数的整数。
+
+  封装成方法就是：
+
+  ```js
+  function strip(num, precision = 12) {
+    return +parseFloat(num.toPrecision(precision));
+  }
+  ```
+
+- 对于运算类操作，如 `+-*/`，就不能使用 `toPrecision` 了。正确的做法是把小数转成整数后再运算。以加法为例：
+
+  ```js
+  /**
+   * 精确加法
+   */
+  function add(num1, num2) {
+    const num1Digits = (num1.toString().split('.')[1] || '').length;
+    const num2Digits = (num2.toString().split('.')[1] || '').length;
+    const baseNum = Math.pow(10, Math.max(num1Digits, num2Digits));
+    return (num1 * baseNum + num2 * baseNum) / baseNum;
+  }
+  ```
+
+- 个直接的解决方法就是设置一个误差范围，通常称为“机器精度”。对JavaScript来说，这个值通常为2-52，在ES6中，提供了`Number.EPSILON`属性，而它的值就是2-52，只要判断`0.1+0.2-0.3`是否小于`Number.EPSILON`，如果小于，就可以判断为0.1+0.2 ===0.3
+
+  ```js
+  function numberepsilon(num1, num2){               
+    return Math.abs(num1 - num2) < Number.EPSILON; 
+  }
+  console.log(numberepsilon(0.1 + 0.2, 0.3)); // true
+  ```
+
+### 问题24：什么是防抖和节流？有什么区别？如何实现？
+
+本质上是优化高频率执行代码的一种手段
+
+如：浏览器的 `resize`、`scroll`、`keypress`、`mousemove` 等事件在触发时，会不断地调用绑定在事件上的回调函数，极大地浪费资源，降低前端性能
+
+为了优化体验，需要对这类事件进行调用次数的限制，对此我们就可以采用 **防抖（debounce）** 和 **节流（throttle）** 的方式来减少调用频率
+
+**定义**
+
+- 防抖: n 秒后再执行该事件，若在 n 秒内被重复触发，则==重新计时==。
+- 节流: n 秒内只运行一次，若在 n 秒内重复触发，只有一次生效
+
+**一、防抖函数**
+
+**防抖函数功能：**
+
+> 在事件被触发 n 秒后再执行回调，如果在这 n 秒内又被触发，则**重新计时**。
+
+比如一个搜索框，应用防抖函数后，当用户不断输入内容时，不会发送请求。只有当用户一段时间`T`内不输入内容了，才会发送一次请求。如果小于这段时间`T`继续输入内容的话，就会重新计算时间`T`，也不会发送请求。这样降低了发送请求的次数，提高性能的同时也提升了用户体验。
+
+**实现防抖函数：**
+
+```javascript
+// func是用户传入需要防抖的函数
+// wait是等待时间，若不传参，默认50ms
+// 因为闭包，timer将一直在内存中
+const debounce = (func, wait = 50) => {
+    // 缓存一个定时器
+    let timer = null;
+    // 返回的函数是每次用户实际调用的防抖函数
+    return (...args) => {
+        // 如果已经设定过定时器了就清空上一次的定时器
+        if (timer) clearTimeout(timer);
+        // 开始一个新的定时器，延迟执行用户传入的方法
+        timer = setTimeout(() => {
+            func.apply(this, args);
+        }, wait);
+    };
+};
+```
+
+**实现效果：**
+
+上方输入框，下方显示区，**不断输入**内容时，下方显示区**不会更新**。只有在`1s`内不输入内容了，下方显示区才会更新内容。
+
+![img](面试JavaScript.assets/20210605133111.gif)
+
+**防抖立即执行**
+
+防抖如果需要立即执行，可加入第三个参数用于判断，实现如下：
+
+```js
+// 防抖立即执行
+function debounce(fun, wait) {
+  let timeout = null;
+  let isFirst = true;
+  return (...arg) => {
+    if(timeout) clearTimeout(timeout)
+    if(isFirst){
+      // 关闭立即执行，当等待时间内不会执行该作用域
+      isFirst = false
+      timeout = setTimeout(() => {
+        // 设置一个定时器，在等待一定时间后，重新设置位防抖立即执行
+        isFirst = true
+      },wait)
+      return fun.apply(this, args)
+    }else{
+      timeout = setTimeout(() => {
+        fun.apply(this, arg)
+      },wait)
+    }
+  }
+}
+```
+
+**实例：文章搜索发送请求**
+
+**二、节流函数**
+
+**节流函数功能：**
+
+> 规定在一个**单位时间**内，只能触发**一次**函数。如果这个单位时间内触发多次函数，**只有一次**生效。
+
+**实现节流函数：**
+
+**定时器**
+
+```javascript
+// func是用户传入需要防抖的函数
+// wait是等待时间，若不传参，默认50ms
+// 因为闭包，flag将一直在内存中
+const throttle = (func, wait = 50) => {
+    // 定义flag，初始为true
+    let flag = true;
+    // 返回的函数是每次用户实际调用的节流函数
+    return (...args) => {
+        if (flag) {
+            // 如果flag为true，则执行定时器
+            setTimeout(() => {
+                func.apply(this, args);
+                // 函数执行完毕后，将flag改回true
+                // 以便下次再执行
+                flag = true;
+            }, wait);
+        }
+        // 因为定时器是异步任务，定时器执行后，立刻将flag关闭
+        // 在等待延时时间时，阀门始终关闭，不会一直执行函数
+        flag = false;
+    };
+};
+```
+
+🦈
+
+```js
+// 节流函数
+// 节流：单位时间内只能触发一个，如果重复触发事件，只会执行一次
+// func是用户需要节流的函数
+function throttle(func, wait) {
+  // 定义flag阀门，用来控制事件的执行
+  let flag = true;
+  // 返回节流函数
+  return (...args) => {
+    if(flag){
+      // 开启定时器，一段时间后执行事件，并且打开阀门
+      setTimeout(() => {
+        func.apply(this, args)
+        flag = true;
+      }, wait)
+    }
+    // 开启阀门，打开定时器后，关闭阀门，这时候再次调用也不会执行函数
+    flag = false;
+  }
+}
+```
+
+
+
+**实现效果：**
+
+上方输入框，下方显示区。不断输入内容时，每隔`500ms`，下方显示区**才会更新一次内容**。
+
+![img](面试JavaScript.assets/20210605141021.gif)
+
+**时间戳（关于时间线的节流函数）**
+
+计算当前执行事件与上一次成功执行事件的时间间隔，如果大于给定的时间间隔，则执行回调函数。
+
+```js
+/**
+ *
+ * @param {Function} callback 要节流的回调函数
+ * @param {number} delay 需要延迟调用的时间
+ * @returns {Function} 已经被节流的回调函数
+ */
+var throttle = function throttle(callback, delay) {
+  var lastTrulyCallbackTime = -Infinity;
+
+  return function throttledCallback() {
+    var curCallbackTime = Date.now();
+
+    if (curCallbackTime - lastTrulyCallbackTime > delay) {
+      lastTrulyCallbackTime = curCallbackTime;
+      callback.apply(null, arguments);
+    }
+  };
+};
+```
+
+**实践：文章搜索联想**
+
+**二、区别**
+
+相同点：
+
+- 都可以通过使用 `setTimeout` 实现
+- 目的都是，降低回调执行频率。节省计算资源
+
+不同点：
+
+- 函数防抖，在一段连续操作结束后，处理回调，利用`clearTimeout`和 `setTimeout`实现。函数节流，在一段连续操作中，每一段时间只执行一次，频率较高的事件中使用来提高性能
+- 函数防抖关注一定时间连续触发的事件，只在最后执行一次，而函数节流一段时间内只执行一次
+
+例如，都设置时间频率为500ms，在2秒时间内，频繁触发函数，节流，每隔 500ms 就执行一次。防抖，则不管调动多少次方法，在2s后，只会执行一次。
+
+**三、应用场景**
+
+防抖在连续的事件，只需触发一次回调的场景有：
+
+- 搜索框搜索输入。只需用户最后一次输入完，再发送请求
+- 手机号、邮箱验证输入检测
+- 窗口大小`resize`。只需窗口调整完成后，计算窗口大小。防止重复渲染。
+
+节流在间隔一段时间执行一次回调的场景有：
+
+- 滚动加载，加载更多或滚到底部监听
+- 搜索框，搜索联想功能

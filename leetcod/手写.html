@@ -104,6 +104,66 @@
       return Object.prototype.toString.call(obj).replace(/^\[object (\S+)\]$/, '$1')
     }
 
+    // 手写防抖节流
+    // 防抖：n秒后执行事件，如果n秒内被重复触发，则重新计时
+    // 参数fun是需要防抖的函数，wait是等待时间
+    function debounce(fun, wait = 50) {
+      let timer = null;
+      // 返回的函数是用户定义的实际的防抖函数
+      return (...arg) => {
+        // 如果已经定义定时器
+        if(timer) clearTimeout(timer)
+        // 开启定时器，延迟用户传入的方法
+        timer = setTimeout(() => {
+          fun.apply(this, arg)
+        },wait)
+      }
+    }
+
+    // 防抖立即执行
+    function debounce(fun, wait) {
+      let timeout = null;
+      let isFirst = true;
+      return (...arg) => {
+        if(timeout) clearTimeout(timeout)
+        if(isFirst){
+          // 关闭立即执行，当等待时间内不会执行该作用域
+          isFirst = false
+          timeout = setTimeout(() => {
+            // 设置一个定时器，在等待一定时间后，重新设置位防抖立即执行
+            isFirst = true
+          },wait)
+          return fun.apply(this, args)
+        }else{
+          timeout = setTimeout(() => {
+            fun.apply(this, arg)
+          },wait)
+        }
+      }
+    }
+
+    // 节流函数
+    // 节流：单位时间内只能触发一个，如果重复触发事件，只会执行一次
+    // func是用户需要节流的函数
+    function throttle(func, wait) {
+      // 定义flag阀门，用来控制事件的执行
+      let flag = true;
+      // 返回节流函数
+      return (...args) => {
+        if(flag){
+          // 开启定时器，一段时间后执行事件，并且打开阀门
+          setTimeout(() => {
+            func.apply(this, args)
+            flag = true;
+          }, wait)
+        }
+        // 开启阀门，打开定时器后，关闭阀门，这时候再次调用也不会执行函数
+        flag = false;
+      }
+    }
+
+
+
   </script>
 </body>
 </html>
