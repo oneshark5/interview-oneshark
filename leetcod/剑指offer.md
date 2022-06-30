@@ -379,3 +379,46 @@ var singleNumbers = function(nums) {
     return res;
 };
 ```
+
+# 四、双指针法
+**剑指 Offer 05. 替换空格**
+**剑指 Offer 21. 调整数组顺序使奇数位于偶数前面**
+🦈双指针：开辟了一个新数组
+```js
+var exchange = function(nums) {
+    // 遍历数组，为奇数的加到数组前面，偶数加到后面
+    let [left, right] = [0, nums.length - 1]
+    let newNum = []
+    for(let i=0; i<nums.length; i++){
+        if(nums[i] % 2 !== 0){
+            newNum[left] = nums[i]
+            left++
+        }else{
+            newNum[right] = nums[i]
+            right--
+        }
+    }
+    return newNum
+};
+```
+飞鸟：⭐采用了位运算，和数组元素交换
+左查找到偶，右查找到奇，左右交换
+```js
+var exchange = function(nums) {
+    // 指定左右指针
+    // 左指针查找到偶数停止，右指针查找到奇数停止
+    // 左右指针交换
+    let [left, right] = [0, nums.length - 1]
+    while(left < right){
+        while(left < right && nums[left] & 1) left++
+        while(left < right && !(nums[right] & 1)) right--
+        [nums[left], nums[right]] = [nums[right], nums[left]]
+    }
+    return nums
+};
+```
+
+**剑指 Offer 22. 链表中倒数第k个节点**
+**剑指 Offer 25. 合并两个排序的链表**
+**剑指 Offer 57. 和为s的两个数字**
+**剑指 Offer 57 - II. 和为s的连续正数序列**
