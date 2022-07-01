@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    // 将状态定义为常量
+    const PENDING = 'pending'
+    const RESOLVED = 'resolved'
+    const REJECTED = 'rejected'
+
+    // 构造函数
+    function MyPromise(exactur) {
+      // 保存Promise对象
+      const self = this;
+      // 初始化Promise属性， status、datas、callbacks
+      const state = PENDING
+      const data = undefined
+      const callbacks = []
+
+      // 改变Promise状态
+      function resolve(value) {
+        // 判断是否为PENDING状态
+        if (self.state !== PENDING) return
+        self.state = RESOLVED
+        self.data = value
+        // 判断是否已经存在回调函数，已经存在就需要等待回调函数执行结束
+        if (callbacks.length > 0) {
+          setTimeout(() => {
+            self.callbacks.forEach(callbackObj => {
+              callbackObj.onResolve(value)
+            });
+          }, 0);
+        }
+      }
+
+      function reject(reason) {
+        if (state !== PENDING) return
+        self.state = REJECTED
+        self.data = reason
+        if (callbacks.length > 0) {
+          setTimeout(() => {
+            self.callbacks.forEach(callbackObj => {
+              callbackObj.onReject(reason)
+            })
+          }, 0);
+        }
+      }
+
+      try {
+        exactur(resolve, reject)
+      } catch (error) {
+        reject(error)
+      }
+    }
+
+    // Promise.prototype.then()
+    /**
+     * then方法的作用是为 Promise 实例添加状态改变时的回调函数,
+     * 接收两个参数,onResolve, onReject函数,成功/失败的回调函数
+     */
+    MyPromise.prototype.then = function (onResolve, onReject) {
+      // 为什么保存Promise对象
+      // const self = this;
+
+      // 返回一个新的Promise
+      return new MyPromise((resolve, reject) => {
+        /* 
+          返回的Promise有三种情况
+          1.抛出异常,失败
+          2.是Promise对象,返回该Promise的执行结果
+          3.不是Promise对象,成功
+        */
+        // 将三种状态整合，创建一个处理函数
+        function handle(callback) {
+          const result = callback(self.data)
+          try {
+            result instanceof Promise ? result.then(resolve, reject) : resolve(result)
+          } catch (error) {
+            reject(error)
+          }
+        }
+
+        switch (self.state) {
+          case PENDING:
+            self.callbacks.push({
+              onResolve(value) {
+                handle(onResolve)
+              },
+              onReject(reason) {
+                handle(onReject)
+              }
+            })
+            break;
+          case RESOLVED:
+            setTimeout(() => {
+              handle(onResolve)
+            }, 0);
+            break;
+          case REJECTED:
+            setTimeout(() => {
+              handle(onReject)
+            }, 0);
+            break;
+          default:
+            break;
+        }
+      })
+    }
+
+    // Promise.prototype.catch()
+    MyPromise.prototype.catch = function (params) {
+      // 在then基础上定义
+      return this.then(undefined, onReject)
+    }
+
+    // Promise.resolve()
+    MyPromise.resolve = function (value) {
+      return new MyPromise((resolve, reject) => {
+        if (value instanceof Promise) {
+          value.then(resolve, reject)
+        } else {
+          resolve(value)
+        }
+      })
+    }
+
+    // Promise.reject()
+    MyPromise.reject() = function (reason) {
+      return new MyPromise((resolve, reject) => {
+        reject(reason)
+      })
+    }
+
+    // Promise.all()
+    MyPromise.all = function (promises) {
+      const values = new Array(promises.length)
+      let resultCount = 0;
+      return new MyPromise((resolve, reject) => {
+        promises.forEach((p, index) => {
+          value => {
+            resultCount++;
+            values[index] = value;
+            if (resultCount === promises.length) {
+              return resolve(value)
+            }
+          },
+            reason => {
+              return reject(reason)
+            }
+        })
+      })
+    }
+
+    // Promise.race()
+    MyPromise.race = function (promises) {
+      return new Promise((resolve, reject) => {
+        // 这个地方不理解
+        value => {
+          resolve(value)
+        },
+        reason => {
+          reject(reason)
+        }
+      })
+    }
+
+
+  </script>
+</body>
+
+</html>
