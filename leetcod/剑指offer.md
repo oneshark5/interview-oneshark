@@ -419,6 +419,147 @@ var exchange = function(nums) {
 ```
 
 **剑指 Offer 22. 链表中倒数第k个节点**
+🦈技巧：在对链表倒数第几个节点进行操作时都可以采用快慢双指针
+思路：
+1. 定义快慢指针，初始都指向链表头部
+2. 快指针先走k步
+3. 再两指针一起走，直到快指针走到头为止
+4. 此时的慢指针指向的就是倒数第k个节点
+5. 返回慢指针即可
+```js
+var getKthFromEnd = function(head, k) {
+    // 与T19逻辑一致
+    // 快慢双指针
+    let newNode = new ListNode(0);
+    newNode.next = head;
+    let slow = fast = newNode;
+    for(let i = 0; i < k; i++){
+        fast = fast.next;
+    }
+    while(fast){
+        slow = slow.next;
+        fast = fast.next
+    }
+    return slow
+};
+```
+
 **剑指 Offer 25. 合并两个排序的链表**
+借鉴飞鸟：借鉴飞鸟：定义两个指针，分别遍历两个链表进行值得比较
+思路：
+1. 创建虚拟头节点，并定义一个指针指向其头部
+2. 创建p1，p2两个指针，指向两链表头部，一起遍历
+3. 条件判断，p1和p2哪个对应的值小，哪个就连接到答案链表
+```js
+var mergeTwoLists = function(l1, l2) {
+    // 合并链表，向一个链表中加入另一个链表，保持顺序不变
+    const newNode = new ListNode(0)
+    let p = newNode
+    let [p1, p2] = [l1, l2]
+    while(p1 && p2){
+        if(p1.val < p2.val){
+            p.next = p1
+            p1 = p1.next
+        }else{
+            p.next = p2
+            p2 = p2.next
+        }
+        p = p.next
+    }
+    // 最后，跳出循环是p1 p2有一个为null，其中一个链表的一个节点还未添加到结果
+    p.next = p1 ? p1 : p2
+    return newNode.next
+};
+```
 **剑指 Offer 57. 和为s的两个数字**
+方法一：暴力
+```js
+var twoSum = function(nums, target) {
+    // 暴力
+    const res = []
+    for(let i=0; i<nums.length; i++){
+        for(let j=0; j<nums.length; j++){
+            if(target - nums[j] === nums[i]){
+                res.push(nums[i])
+                res.push(nums[j])
+            }
+        }
+    }
+    return res.splice(0,2)
+};
+```
+方法二：Map集合
+🦈采用Map集合，先映射再遍历数组，判断target-num是否在Map集合中
+```js
+var twoSum = function(nums, target) {
+    // Set集合
+    const res = []
+    // 建立映射
+    let map = new Map()
+    for(let num of nums){
+        if(!map.has(num)){
+            map.set(num, num)
+        }
+    }
+    // 再次遍历数组，进行判断，
+    for(let num of nums){
+        if(map.has(target-num)){
+            res.push(num)
+            res.push(map.get(target-num))
+            return res
+        }
+    }
+    return res
+};
+```
+
+方法三：前后双指针
+飞鸟定义前后双指针，根据两值之和与目标值的大小关系判断左右指针的加减
+```js
+var twoSum = function(nums, target) {
+    // ⭐前后双指针
+    let [left, right] = [0, nums.length - 1]
+    while(left < right){
+        sum = nums[left] + nums[right];
+        if(sum < target){
+            left++;
+        }else if(sum > target){
+            right--;
+        }else{
+            return [nums[left], nums[right]]
+        }
+    }
+    return []
+
+};
+```
+
 **剑指 Offer 57 - II. 和为s的连续正数序列**
+思路：
+1. 滑动窗口思路，窗口初始化为[1, 2]，初始sum为3
+2. 因为输出的序列至少有2个数，所以若窗口第一个数大于target/2时，就不再继续了
+3. 若sum太小，向窗口添加下一个数，更新sum
+4. 若sum太大，弹出窗口第一个数，更新sum
+5. 若sum===target，则将窗口的数放入res，随后弹出第一个数，继续滑动
+```js
+var findContinuousSequence = function(target) {
+    // 滑动窗口（好题）
+    const res = []
+    const window = [1, 2]
+    let sum = 3
+    while(window[0] <= target >> 1){
+        if(sum < target){
+            // 新增值
+            const num = window.at(-1) + 1;
+            sum += num
+            window.push(num)
+        } else if(sum > target){
+            sum -= window.shift()
+        } else {
+            res.push([...window])
+            sum -= window.shift()
+        }
+    }
+    return res;
+};
+```
