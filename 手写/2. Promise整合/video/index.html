@@ -9,7 +9,61 @@
 </head>
 <body>
   <script>
-    let p = new Promise()
+    // 测试then()和catch()
+    // let p = new Promise((resolve, reject) => {
+    //   // resolve('OK')
+    //   // reject('error')
+    //   throw "error"
+    // })
+    // console.log(p);
+    // // 传入两个参数
+    // p.then(value => {
+    //   console.log(value);
+    //   // new Error
+    // }, reason => {
+    //   setTimeout(() => {
+    //     console.warn(reason);
+    //   })
+    // })
+
+    // 第二个参数采用catch代替
+    // p.then(value => {
+    //   console.log(value);
+    // }).catch(reason => {
+    //   console.warn('error');
+    // })
+
+    // 测试 Promise.resolve()
+    // const p = Promise.resolve('ok')
+    // const p2 = Promise.resolve(new Promise((resolve, reject) => {
+    //   resolve('success')
+    //   // reject('error')
+    // }))
+    // const p3 = Promise.resolve(Promise.resolve('Oh Yeah'))
+
+    // console.log(p2);
+
+    // 测试 Promise
+    // const p = Promise.reject('error')
+    // const p2 = Promise.reject(new Promise((resolve, reject) => {
+    //   reject('error')
+    // }))
+    // console.log(p);
+
+    // 测试Promise.all() race()
+    let p1 = new Promise((resolve, reject) => {
+      // resolve('ok')
+      reject('error')
+    })
+    let p2 = Promise.resolve('success')
+    let p3 = Promise.resolve('okokokok')
+
+    // let result = Promise.all([p1, p2, p3])
+    // console.log(result);
+
+    let result = Promise.race([p1, p2, p3])
+    console.log(result);
+
   </script>
 </body>
 </html>

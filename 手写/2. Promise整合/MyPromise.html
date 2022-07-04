@@ -18,7 +18,7 @@
 
       // MyPromise构造函数
       function MyPromise(exactur) {
-        // 保存Promise对象
+        // 保存Promise实例对象的this 的值
         const self = this;
         // 初始化Promise属性， status、datas、callbacks
         const state = PENDING
@@ -32,6 +32,7 @@
           self.state = RESOLVED
           self.data = value
           // 判断是否已经存在回调函数，已经存在就需要等待回调函数执行结束
+          // ⭐这里是调用回调函数的地方
           if (callbacks.length > 0) {
             setTimeout(() => {
               self.callbacks.forEach(callbackObj => {
@@ -41,7 +42,7 @@
           }
         }
 
-        function reject(reason) {
+        function reject(reason) {  
           if (state !== PENDING) return
           self.state = REJECTED
           self.data = reason
@@ -54,6 +55,8 @@
           }
         }
 
+        // 执行器函数是同步调用的
+        // throw 抛出异常
         try {
           exactur(resolve, reject)
         } catch (error) {
@@ -61,9 +64,10 @@
         }
       }
       // MyPromise原型的then()方法
+      // onResolve  onReject是调用then方法时传过来的函数
       MyPromise.prototype.then = function (onResolve, onReject) {
-        // 为什么保存Promise对象
-        // const self = this;
+        // 保存this的指向,这里是p实例调用的then所以this是指向p的保存一下
+        const self = this;
 
         // 返回一个新的Promise
         return new MyPromise((resolve, reject) => {
@@ -83,8 +87,10 @@
             }
           }
 
+          // 状态判断PENDING状态,保存回调函数
           switch (self.state) {
             case PENDING:
+              // 保存回调函数(加入到数组,实现多个回调)
               self.callbacks.push({
                 onResolve(value) {
                   handle(onResolve)
