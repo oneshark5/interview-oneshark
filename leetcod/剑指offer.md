@@ -563,3 +563,10 @@ var findContinuousSequence = function(target) {
     return res;
 };
 ```
+
+# 五、栈与队列
+**剑指 Offer 09. 用两个栈实现队列**
+**剑指 Offer 30. 包含min函数的栈**
+**剑指 Offer 31. 栈的压入、弹出序列**
+****
+****
