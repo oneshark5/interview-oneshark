@@ -566,7 +566,136 @@ var findContinuousSequence = function(target) {
 
 # 五、栈与队列
 **剑指 Offer 09. 用两个栈实现队列**
+```js
+var CQueue = function() {
+    this.inStack = []
+    this.outStack = []
+};
+
+/** 
+ * @param {number} value
+ * @return {void}
+ */
+CQueue.prototype.appendTail = function(value) {
+    this.inStack.push(value)
+};
+
+/**
+ * @return {number}
+ */
+CQueue.prototype.deleteHead = function() {
+    if(this.inStack.length===0 && this.outStack.length === 0) return -1
+    if(!this.outStack.length){
+        while(this.inStack.length){
+            this.outStack.push(this.inStack.pop())
+        }
+    }
+    return this.outStack.pop()
+};
+```
 **剑指 Offer 30. 包含min函数的栈**
+🦈min的时候用了Math.min()函数
+```js
+//  ...这里说的是栈不是队列了   脑残吗？
+var MinStack = function() {
+    this.stack = []
+};
+
+/** 
+ * @param {number} x
+ * @return {void}
+ */
+MinStack.prototype.push = function(x) {
+    this.stack.push(x)
+};
+
+/**
+ * @return {void}
+ */
+MinStack.prototype.pop = function() {
+    return this.stack.pop()
+};
+
+/**
+ * @return {number}
+ */
+MinStack.prototype.top = function() {
+    return this.stack.at(-1)
+};
+
+/**
+ * @return {number}
+ */
+MinStack.prototype.min = function() {
+    return Math.min(...this.stack)
+};
+```
+
+🐦压栈的时候创建了一个min属性
+```js
+//  ...这里说的是栈不是队列了   脑残吗？
+var MinStack = function() {
+    this.stack = []
+};
+
+/** 
+ * @param {number} x
+ * @return {void}
+ */
+MinStack.prototype.push = function(x) {
+    this.stack.push({
+        val:x,
+        min:this.stack.length ? Math.min(x, this.min()) : x
+    })
+};
+
+/**
+ * @return {void}
+ */
+MinStack.prototype.pop = function() {
+    return this.stack.pop()
+};
+
+/**
+ * @return {number}
+ */
+MinStack.prototype.top = function() {
+    return this.stack.at(-1).val
+};
+
+/**
+ * @return {number}
+ */
+MinStack.prototype.min = function() {
+    return this.stack.at(-1).min
+};
+```
 **剑指 Offer 31. 栈的压入、弹出序列**
+思路：
+1. 新建另一个栈，index=0，，将pushed数组中的数，依次推入栈
+2. 入栈后，while判断popped[index]与新建的栈栈顶元素是否相等
+3. 若相等，则弹出栈顶，index++
+4. 最后判断栈是否为空
+```js
+var validateStackSequences = function(pushed, popped) {
+    // 只有第一个元素可以比后一个元素小，其余元素都大？×
+    // 自己比较难想出来
+    /**
+    思路：
+    创建一个栈，当弹出序列popped与遍历到的压入序列pushed不匹配时，压栈处理，否则弹栈，最后判断栈是否为空
+     */
+    const stack = []
+    let index = 0
+    const len = pushed.length;
+    for(let i=0; i<len; i++){
+        stack.push(pushed[i])
+        while(popped[index] !== undefined && popped[index] === stack.at(-1)){
+            stack.pop()
+            index++
+        }
+    }
+    return !stack.length
+};
+```
 ****
 ****
