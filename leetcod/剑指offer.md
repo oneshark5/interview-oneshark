@@ -697,5 +697,39 @@ var validateStackSequences = function(pushed, popped) {
     return !stack.length
 };
 ```
+
+# 六、二叉树
+**剑指 Offer II 044. 二叉树每层的最大值**
+```js
+var largestValues = function(root) {
+    // 515原题。。。
+    const res = []
+    if(!root) return res
+    const queueNode = [root]
+    while(queueNode.length){
+        const len = queueNode.length
+        const levelNode = []
+        for(let i=0; i<len; i++){
+            let node = queueNode.shift()
+            levelNode.push(node.val)
+            node.left && queueNode.push(node.left)
+            node.right && queueNode.push(node.right)
+        }
+        // 找出每一层的最大值
+        let maxVal = Math.max(...levelNode)
+        res.push(maxVal)
+    }
+    return res
+};
+```
+****
+****
+****
+****
+****
+****
+****
+****
+****
 ****
 ****

@@ -1113,3 +1113,25 @@ Promise.race = function (promises) {
 }
 ```
 
+### 问题8：你是怎么理解ES6中 Generator的？使用场景？
+
+Generator 函数是一种异步编程解决方案，是一个普通函数，不同之处在于：
+
+- `function`关键字与函数名之间有一个星号
+
+- 函数体内部使用`yield`表达式
+
+- 采用`next`方法调用（🦈只有调用next方法，生成器函数才会执行）
+
+  调用遍历器对象的`next`方法，返回一个有着`value`和`done`两个属性的对象，`value`属性表示当前的内部状态的值，是`yield`表达式后面那个表达式的值；`done`属性是一个布尔值，表示是否遍历结束。
+
+  - `next`方法可以带一个参数，该参数就会被当作上一个`yield`表达式的返回值。
+
+- `for...of`循环可以自动遍历 Generator 函数运行时生成的`Iterator`对象，且此时不再需要调用`next`方法。（🦈不包含return语句后面的内容）
+
+- 扩展运算符（`...`）、解构赋值和`Array.from`方法，都可以将 Generator 函数返回的 Iterator 对象，作为参数。
+
+- 第一次调用`next`方法，相当于启动生成器函数，所以使用`throw`方法的前提是已经执行过一次`next`方法。
+
+- Generator 函数返回的遍历器对象，还有一个`return()`方法，可以返回给定的值，并且终结遍历 Generator 函数。
+
