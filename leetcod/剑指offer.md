@@ -723,11 +723,14 @@ var largestValues = function(root) {
 };
 ```
 **剑指 Offer 32 - I. 从上到下打印二叉树**
+
 **剑指 Offer 32 - II. 从上到下打印二叉树 II**
 **剑指 Offer 32 - III. 从上到下打印二叉树 III**
 **剑指 Offer 54. 二叉搜索树的第k大节点**
 **剑指 Offer 55 - I. 二叉树的深度**
 **剑指 Offer 68 - I. 二叉搜索树的最近公共祖先**
+
+**剑指 Offer 33. 二叉搜索树的后序遍历序列**
 
 DFS
 **剑指 Offer 12. 矩阵中的路径**
