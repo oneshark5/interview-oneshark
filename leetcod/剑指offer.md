@@ -723,9 +723,66 @@ var largestValues = function(root) {
 };
 ```
 **剑指 Offer 32 - I. 从上到下打印二叉树**
-
+```js
+var levelOrder = function(root) {
+    // BFS层序遍历
+    if(!root) return []
+    const res = []
+    const queueNode = [root]
+    while(queueNode.length){
+        let node = queueNode.shift()
+        res.push(node.val)
+        node.left && queueNode.push(node.left)
+        node.right && queueNode.push(node.right)
+    }
+    return res
+};
+```
 **剑指 Offer 32 - II. 从上到下打印二叉树 II**
+```js
+var levelOrder = function(root) {
+    const res = []
+    if(!root) return res
+    const queueNode = [root]
+    while(queueNode.length){
+        const len = queueNode.length
+        const levelNode = []
+        for(let i=0; i<len; i++){
+            let node = queueNode.shift()
+            levelNode.push(node.val)
+            node.left && queueNode.push(node.left)
+            node.right && queueNode.push(node.right)
+        }
+        res.push(levelNode)
+    }
+    return res
+};
+```
 **剑指 Offer 32 - III. 从上到下打印二叉树 III**
+```js
+var levelOrder = function(root) {
+    // 思路：统计层数，在加入结果集时，奇数不变，偶数反转
+    const res = []
+    if(!root) return res
+    const queueNode = [root]
+    let count = 0
+    while(queueNode.length){
+        const len = queueNode.length;
+        const levelNode = []
+        for(let i=0; i<len; i++){
+            let node = queueNode.shift()
+            levelNode.push(node.val)
+            node.left && queueNode.push(node.left)
+            node.right && queueNode.push(node.right)
+        }
+        // 每对一层操作完成，层数count+1
+        count++
+        if(count%2) res.push(levelNode)
+        else res.push(levelNode.reverse())
+    }
+    return res
+};
+```
 **剑指 Offer 54. 二叉搜索树的第k大节点**
 **剑指 Offer 55 - I. 二叉树的深度**
 **剑指 Offer 68 - I. 二叉搜索树的最近公共祖先**
