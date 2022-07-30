@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    // ⭐⭐⭐发布订阅模式⭐⭐⭐
+    class Star {
+      constructor() {
+        // 定义数组列表，存放回调函数
+        this.followers = []
+      }
+      // 订阅
+      follow(obj) {
+        // 将订阅者加入数组
+        this.followers.push(obj)
+      }
+      // 发布
+      publish() {
+        this.followers.forEach(item => {
+          // 回调函数
+          item.fn(item.name);
+        })
+      }
+    }
+
+    const star = new Star()
+    // 粉丝订阅; 并定义自己的回调函数，收到订阅内容后应有的操作
+    star.follow({
+      name: 'Bob',
+      fn(name) {
+        console.log(`${name}收到内容`);
+      }
+    })
+    star.follow({
+      name: 'Jone',
+      fn(name) {
+        console.log(`${name}看到消息，并点赞！`);
+      },
+    });
+    star.follow({
+      name: 'Tom',
+      fn(name) {
+        console.log(`${name}看到消息，并评论！`);
+      },
+    });
+    // star发布消息
+    star.publish();
+    // Bob收到内容
+    // Jone看到消息，并点赞！
+    // Tom看到消息，并评论！
+
+    const pubSub = {
+      list: [],// 数组，存放回调函数
+      // 订阅，存放的是整个订阅者对象（里面有回调函数，供我们调用）
+      subscribe(obj) {
+        this.list.push(obj)
+      },
+      // 发布--可以接收一定的内容，作为发布内容
+      publish(value) {
+        this.list.forEach(item => {
+          item.fun(item.name, value)
+        })
+      }
+    }
+
+    // 提前订阅
+    pubSub.subscribe({
+      name: '订阅者1',
+      fun(name, value) {
+        console.log(`${name}收到订阅内容：${value}`);
+      }
+    })
+    pubSub.subscribe({
+      name: '订阅者2',
+      fun(name, value) {
+        console.log(`${name}收到订阅！！${value}`);
+      }
+    })
+
+    // 发布
+    setTimeout(() => {
+      pubSub.publish('🦈🦈🦈🦈🦈')
+    }, 0)
+    // 订阅者1收到订阅内容：🦈🦈🦈🦈🦈
+    // 订阅者2收到订阅！！🦈🦈🦈🦈🦈
+  </script>
+</body>
+
+</html>
