@@ -795,3 +795,25 @@ DFS
 ****
 ****
 ****
+
+
+
+## 贪心
+**剑指 Offer 14- II. 剪绳子 II**
+```js
+var cuttingRope = function(n) {
+    // 特殊情况处理
+    const arr = [null, null, 1, 2, 4]
+    if(n <= 4) return arr[n]
+    const mod = 1000000007
+    let res = 1
+    while(n > 4) {
+        // 不断-3
+        res = (res * 3) % mod;
+        n -= 3
+    }
+    // 最后剩n等于4
+    res *= n
+    return res % mod
+};
+```
