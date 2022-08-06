@@ -1217,35 +1217,27 @@ test("world");
 
 **匿名函数**
 应用
-
 - 立即执行函数
-
 ```js
 (function () {
   alert("匿名函数执行方式一");
 })();
 ```
-
 - 绑定事件时的方法
-
 ```js
 let item = document.getElementById("item");
 item.onclick = function () {
   alert("我是输入框的点击事件");
 };
 ```
-
 - 函数表达式 将匿名函数赋值给一个变量
-
 ```js
 let fun2 = function () {
   alert("这是一个函数表达式");
 };
 fun2();
 ```
-
 - 对象里面的函数属性
-
 ```js
 let obj = {
   name: "Year",
@@ -1256,9 +1248,7 @@ let obj = {
 };
 alert(obj.hobby());
 ```
-
 - 函数返回值，即将函数作为一个返回值
-
 ```js
 //内部函数可以访问外部函数的所有变量
 function box() {
@@ -1268,7 +1258,6 @@ function box() {
 }
 box()();
 ```
-
 特点
 表现为 function 后面不带名字的函数，但是可以用一个变量接收，通过执行这个变量来执行这个函数。
 - this 指向 window
