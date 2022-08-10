@@ -45,7 +45,7 @@ var minArray = function(numbers) {
     let [left, right] = [0, numbers.length-1]
     while(left <= right){
         let mid = Math.floor((left+right)/2)
-        if(numbers[mid] > numbers[right]) left = mid + 1
+        if(numbers[mid] > numbers[right]) left = mid + 1 // 最小值在右侧
         else if(numbers[mid] < numbers[left]) right = mid
         else right--
     }
