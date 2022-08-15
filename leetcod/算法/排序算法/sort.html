@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    // 🦈冒泡排序
+    Array.prototype.bubbleSort = function () {
+      for (let i = 0; i < this.length - 1; i++) {
+        for (let j = 0; j < this.length - 1 - i; j++) {
+          if (this[j] > this[j + 1]) {
+            let temp = this[j]
+            this[j] = this[j + 1]
+            this[j + 1] = temp
+          }
+        }
+      }
+    }
+    // 测试
+    const bubbleArr = [7, 5, 4, 15, 3, 9, 6, 12];
+    bubbleArr.bubbleSort()
+    console.log(bubbleArr) // (8) [3, 4, 5, 6, 7, 9, 12, 15]
+
+    // 🦈选择排序
+    Array.prototype.selectionSort = function () {
+      for (let i = 0; i < this.length - 1; i++) {
+        let minIndex = i;
+        for (let j = i; j < this.length; j++) {
+          if (this[j] < this[minIndex]) minIndex = j
+        }
+        // 如果找到了更小的值，则交换( i 在前 minIndex 在后)
+        if (minIndex !== i) {
+          let temp = this[i]
+          this[i] = this[minIndex]
+          this[minIndex] = temp
+        }
+      }
+    }
+    const selectionArr = [7, 5, 4, 15, 3, 9, 6, 12];
+    selectionArr.selectionSort();
+    console.log(selectionArr); // (8) [3, 4, 5, 6, 7, 9, 12, 15]
+
+
+    // 🦈插入排序
+    // Array.prototype.insertSort = function () {
+    //   for(let i=1; i<this.length; i++){
+    //     // 取出待比较元素
+    //     const temp = this[i]
+    //     let j = i; // 从遍历到的当前元素往前比较
+    //     while (j > 0) {
+    //       if(this[j - 1] > temp){
+    //         this[j] = this[j-1] // 把大的往后放（继续往前比较）
+    //       }else{
+    //         break;
+    //       }
+    //       j--;
+    //     }
+    //     this[j] = temp;
+    //   }
+    // }
+
+    Array.prototype.insertSort = function () {
+      for(let i=1; i<this.length; i++){
+        // 待插入元素（也是用来比较的元素）
+        let temp = this[i]
+        let j = i;
+        while(j > 0){
+          // 当前面的元素大就继续往前查找
+          if(this[j - 1] > temp) {
+            this[j] = this[j-1]
+          }else{
+            break;
+          }
+          j--
+        }
+        // 当退出循环就查找到插入位置
+        this[j] = temp;
+      }
+    }
+    const insertArr = [7, 5, 4, 15, 3, 9, 6, 12];
+    insertArr.insertSort()
+    console.log(insertArr) // (8) [3, 4, 5, 6, 7, 9, 12, 15]
+
+
+    // 🦈归并排序
+    Array.prototype.mergeSort = function () {
+      const rec = arr => {
+        if(arr.length === 1) return arr
+        const mid = Math.floor(arr.length/2);
+        const left = arr.slice(0, mid);
+        const right = arr.slice(mid, arr.length);
+        const orderLeft = rec(left);
+        const orderRight = rec(right);
+        const res = [];
+        while(orderLeft.length || orderRight.length){
+          if(orderLeft.length && orderRight.length){
+            res.push(orderLeft[0] < orderRight[0] ? orderLeft.shift() : orderRight.shift())
+          }else if(orderLeft.length){
+            res.push(orderLeft.shift())
+          }else if(orderRight.length){
+            res.push(orderRight.shift())
+          }
+        }
+        return res
+      }
+
+      const res = rec(this)
+      res.forEach((item,index) => {
+        this[index] = item;
+      });
+    }
+    const mergeArr = [7, 5, 4, 15, 3, 9, 6, 12];
+    mergeArr.mergeSort()
+    console.log(mergeArr) // (8) [3, 4, 5, 6, 7, 9, 12, 15]
+
+    // 🦈快速排序
+    Array.prototype.quickSort = function () {
+      const rec = arr => {
+        // 确定终止条件
+        if(arr.length <= 1) return arr
+        const left = []
+        const right = []
+        const mid =arr[0]
+        for(let i=1; i<arr.length; i++){
+          if(arr[i] < mid){
+            left.push(arr[i])
+          }else{
+            right.push(arr[i])
+          }
+        }
+        return [...rec(left), mid, ...rec(right)]
+      }
+      const res = rec(this)
+      res.forEach((item, index) => {
+        this[index] = item
+      })
+    }
+    const quickArr = [7, 5, 4, 15, 3, 9, 6, 12];
+    quickArr.quickSort()
+    console.log(quickArr) // (8) [3, 4, 5, 6, 7, 9, 12, 15]
+
+  </script>
+</body>
+
+</html>
