@@ -32,3 +32,12 @@
 
 - 在一些性能要求极高的应用中虚拟 DOM 无法进行针对性的极致优化
 - 首次渲染大量 DOM 时，由于多了一层虚拟 DOM 的计算，速度比正常稍慢
+
+
+### 生命周期
+只有class组件才有生命周期，函数组件没有，在函数组件中类似的功能是副作用函数，相当于是class组件中`componentDidMount`，`componentDidUpdate` 和 `componentWillUnmount` 这三个函数的组合。
+useEffect() 副作用函数；异步执行
+默认情况下，它在第一次渲染之后和每次更新之后都会执行；
+
+useLayoutEffect
+所有的 DOM 变更之后同步调用 effect
