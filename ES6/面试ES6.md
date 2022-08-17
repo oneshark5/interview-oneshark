@@ -663,7 +663,7 @@ Promise`构造函数接受一个函数作为参数，该函数的两个参数分
 
 - then()
 
-  `then`是实例状态发生改变时的回调函数，第一个参数是`resolved`状态的回调函数，第二个参数是`rejected`状态的回调函数
+  `then`是实例状态发生改变时的回调函数，第一个参数是`resolved`状态的回调函数，第二个参数是`rejected`状态的回调函数；
 
   `then`方法返回的是一个新的`Promise`实例，也就是`promise`能链式书写的原因
 
@@ -679,7 +679,7 @@ Promise`构造函数接受一个函数作为参数，该函数的两个参数分
 
 - catch
 
-  `catch()`方法是`.then(null, rejection)`或`.then(undefined, rejection)`的别名，用于指定发生错误时的回调函数
+  `catch()`方法是`.then(null, rejection)`或`.then(undefined, rejection)`的别名，用于指定==发生错误时的回调函数==
 
   ```js
   getJSON("/posts.json")
@@ -959,7 +959,7 @@ new Promise((resolve, reject) => {
 
 - 三个关键步骤
 
-  改变状态、存储值、执行回调函数
+  改变状态、存储值、执行回调函数；
 
 ```js
 // 覆盖原有的Promise

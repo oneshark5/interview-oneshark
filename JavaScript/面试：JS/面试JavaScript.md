@@ -2675,7 +2675,7 @@ div.addEventListener('click', onClickFn, false);
 p.addEventListener('click', onClickFn, false);
 ```
 
-上述使用了`eventPhase`，返回一个代表当前执行阶段的整数值。1为捕获阶段、2为事件对象触发阶段、3为冒泡阶段
+上述使用了`eventPhase`，返回一个代表当前执行阶段的整数值。1为捕获阶段、2为事件对象触发阶段、3为冒泡阶段；
 
 点击`Click Me!`，输出如下
 
