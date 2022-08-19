@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
 </head>
+
 <body>
   <script>
     // 自定义链表
@@ -46,7 +48,7 @@
     function display() {
       // 当前节点不为null就打印输出
       let curNode = this.head
-      while(curNode.next !== null){
+      while (curNode.next !== null) {
         console.log(curNode.next.element);
         curNode = curNode.next
       }
@@ -55,14 +57,14 @@
     function findPrevious(item) {
       // 判断下一个节点不是待删除元素，就找到了待删除元素的前一节点
       let curNode = this.head
-      while(curNode !== null && curNode.next.element !== item){
+      while (curNode !== null && curNode.next.element !== item) {
         curNode = curNode.next
       }
       return curNode
     }
     function remove(item) {
       let prevNode = this.findPrevious(item)
-      if(prevNode.next !== null){
+      if (prevNode.next !== null) {
         prevNode.next = prevNode.next.next
       }
     }
@@ -82,13 +84,13 @@
     // instanceof原理实现
     function myInstanceof(left, right) {
       // 判断是不是基础数据类型
-      if(typeof(left) !== 'object' || typeof(left) !== null) return false
+      if (typeof (left) !== 'object' || typeof (left) !== null) return false
       // 获取实例对象的原型
       let proto = Object.getPrototypeOf(left)
       // 沿着原型链一直查找
-      while(true){
-        if(proto === null) return false
-        if(proto = right.prototype) return true //right构造函数的prototype属性在left实例对象的原型链上
+      while (true) {
+        if (proto === null) return false
+        if (proto = right.prototype) return true //right构造函数的prototype属性在left实例对象的原型链上
         proto = Object.getPrototypeOf(proto)
       }
     }
@@ -98,8 +100,8 @@
     // 为什么不直接使用Object.prototype.toString.call()，以防toString被重写
     function getType(obj) {
       // 原始数据类型
-      let type = typeof(obj)
-      if(type !== 'object') return type
+      let type = typeof (obj)
+      if (type !== 'object') return type
       // 引用数据类型
       return Object.prototype.toString.call(obj).replace(/^\[object (\S+)\]$/, '$1')
     }
@@ -112,11 +114,11 @@
       // 返回的函数是用户定义的实际的防抖函数
       return (...arg) => {
         // 如果已经定义定时器
-        if(timer) clearTimeout(timer)
+        if (timer) clearTimeout(timer)
         // 开启定时器，延迟用户传入的方法
         timer = setTimeout(() => {
           fun.apply(this, arg)
-        },wait)
+        }, wait)
       }
     }
 
@@ -125,19 +127,19 @@
       let timeout = null;
       let isFirst = true;
       return (...arg) => {
-        if(timeout) clearTimeout(timeout)
-        if(isFirst){
+        if (timeout) clearTimeout(timeout)
+        if (isFirst) {
           // 关闭立即执行，当等待时间内不会执行该作用域
           isFirst = false
           timeout = setTimeout(() => {
             // 设置一个定时器，在等待一定时间后，重新设置位防抖立即执行
             isFirst = true
-          },wait)
+          }, wait)
           return fun.apply(this, args)
-        }else{
+        } else {
           timeout = setTimeout(() => {
             fun.apply(this, arg)
-          },wait)
+          }, wait)
         }
       }
     }
@@ -150,7 +152,7 @@
       let flag = true;
       // 返回节流函数
       return (...args) => {
-        if(flag){
+        if (flag) {
           // 开启定时器，一段时间后执行事件，并且打开阀门
           setTimeout(() => {
             func.apply(this, args)
@@ -162,9 +164,89 @@
       }
     }
 
+    // 🦈🦈🦈🦈🦈🦈🦈🦈🦈🦈🦈🦈🦈🦈🦈🦈🦈🦈🦈
+    console.log('============================');
 
+    const children = [
+      'hello world',
+      {
+        type: 'p',
+        props: {
+          id: 2,
+          name: 'p组件',
+          style: {
+            color: 'black'
+          }
+        },
+        children: [
+          '你好1'
+        ]
+      }, {
+        type: 'p',
+        props: {
+          id: 3,
+          name: 'p组件',
+          style: {
+            color: 'black'
+          }
+        },
+        children: [
+          '你好2'
+        ]
+      }, {
+        type: 'div',
+        props: {
+          id: 4,
+          name: 'div1',
+          style: {
+            // border: '2px solid black',
+            // height: '40px',
+
+          }
+        },
+        children: [
+
+        ]
+      }, {
+        type: 'div',
+        props: {
+          id: 5,
+          name: 'div2',
+          style: {
+            // border: '2px solid black',
+            // height: '40px',
+          }
+        },
+        children: [
+          '递归压入'
+        ]
+      }
+    ]
+
+    console.log(children);
+
+    const childrens = []
+    const getCom = (arr) => {
+      // 是就加入数组，不是就解构children
+      arr.forEach(element => {
+        if (typeof (element) === 'string') childrens.push(element)
+        else {
+          const {children} = element
+          getCom(children)
+        }
+      });
+
+      // const childrens = []
+      // const chil = children.map((item, index) => {
+      //   // 是字符串直接加入数组，不是字符串提取出children
+      //   if (typeof (item) === 'string') childrens.push(item)
+
+      // })
+    }
+    getCom(children)
+    console.log(childrens)
 
   </script>
 </body>
-</html>
 
+</html>
