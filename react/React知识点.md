@@ -166,11 +166,86 @@ class Dashboard extends React.Component {
 - 在一些性能要求极高的应用中虚拟 DOM 无法进行针对性的极致优化
 - 首次渲染大量 DOM 时，由于多了一层虚拟 DOM 的计算，速度比正常稍慢
 
+### 问题3：生命周期
 
-### 生命周期
 只有class组件才有生命周期，函数组件没有，在函数组件中类似的功能是副作用函数，相当于是class组件中`componentDidMount`，`componentDidUpdate` 和 `componentWillUnmount` 这三个函数的组合。
 useEffect() 副作用函数；异步执行
 默认情况下，它在第一次渲染之后和每次更新之后都会执行；
 
 useLayoutEffect
 所有的 DOM 变更之后同步调用 effect
+
+### 问题4：SPA首屏加载速度慢的怎么解决？
+
+![image.png](React知识点.assets/24617c00-3acc-11eb-ab90-d9ae814b240d.png)
+
+**一、什么是首屏加载**
+
+首屏时间（First Contentful Paint），指的是浏览器从响应用户输入网址地址，到首屏内容渲染完成的时间，此时整个网页不一定要全部渲染完成，但需要展示当前视窗需要的内容
+
+首屏加载可以说是用户体验中**最重要**的环节
+
+**首屏时间**
+
+可以简单的理解为白屏时间+第一次渲染的用时;
+
+浏览器提供的两个API：`MutationObserver`、`performance` 。
+
+mutationObserver
+
+`MutationObserver` 给我们提供了监听页面DOM树变化的能力;
+
+```js
+// 注册监听函数
+const observer = new MutationObserver((mutations) => {
+  console.log('时间：', performance.now(),'ms', '，DOM树发生变化啦！增加了这些节点:');
+  for (let i = 0; i < mutations.length; i++) {
+    console.log(mutations[0].addedNodes);
+  }
+})
+// 开始监听document的节点变化
+observer.observe(document, {
+  childList: true,
+  subtree: true
+});
+```
+
+performance
+`performance` 目前的兼容性虽然没有 MutationObserver 那么好，不过主流浏览器也基本已经支持。
+
+可以通过浏览器提供的 `performance` 接口查询到当前页面的资源加载情况
+
+
+
+
+
+**二、解决方案**
+
+- 减小入口文件体积
+
+  路由懒加载
+
+- 静态资源本地缓存
+
+  后端返回资源问题：
+
+  - 采用`HTTP`缓存，设置`Cache-Control`，`Last-Modified`，`Etag`等响应头
+  - 采用`Service Worker`离线缓存
+
+  前端合理利用`localStorage`
+
+- 图片资源的压缩
+
+  将图片格式换成webP、压缩图片，减轻`http`请求的压力。
+
+- 开启GZip压缩
+
+- 使用SSR
+
+  SSR（Server side ），也就是服务端渲染，组件或页面通过服务器生成html字符串，再发送到浏览器
+
+  从头搭建一个服务端渲染是很复杂的
+
+![image.png](React知识点.assets/4fafe900-3acc-11eb-85f6-6fac77c0c9b3.png)
+
+重排？重绘？

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script>
+    var canvas = document.createElement('canvas'),
+      ctx = canvas.getContext('2d'),
+      img = document.getElementById('img');
+
+    var loadImg = function (url, fn) {
+      var image = new Image();
+      image.src = url;
+      image.onload = function () {
+        fn(image);
+      }
+    }
+    loadImg('./img/1.jpg', function (image) {
+      canvas.height = image.height;
+      canvas.width = image.width;
+      ctx.drawImage(image, 0, 0);
+      img.setAttribute('C:/Users/Iron/Desktop/demoWork/note/git/interview-oneshark/1.jpg', canvas.toDataURL('image/webp'));
+    });
+    // console.log(loadImg);
+  </script>
+</head>
+
+<body>
+  <div class="slider">
+    <img class="fade" src="./img/1.jpg" alt="" />
+  </div>
+</body>
+
+</html>
