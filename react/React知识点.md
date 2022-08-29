@@ -175,6 +175,11 @@ useEffect() 副作用函数；异步执行
 useLayoutEffect
 所有的 DOM 变更之后同步调用 effect
 
+**那你说说hooks如何模拟挂载卸载**
+
+1. 通过useState()初始化和状态state
+2. 
+
 ### 问题4：SPA首屏加载速度慢的怎么解决？
 
 ![image.png](React知识点.assets/24617c00-3acc-11eb-ab90-d9ae814b240d.png)
