@@ -96,7 +96,9 @@
         const left = arr.slice(0, mid);
         const right = arr.slice(mid, arr.length);
         const orderLeft = rec(left);
+        console.log('⭐左侧有序数组',orderLeft)
         const orderRight = rec(right);
+        console.log('右侧有序数组',orderRight)
         const res = [];
         while(orderLeft.length || orderRight.length){
           if(orderLeft.length && orderRight.length){
