@@ -1419,6 +1419,8 @@ let result2 = (null  === undefined); // false
 
 - JSON.stringify()
 
+  该方法将一个 JavaScript 对象或值转换为 JSON 字符串
+
   - 不支持 Symbol，BigInt，Function；忽略`undefined`、`symbol`和`函数`
   - 不支持 循环引用
   - 丢失值为 undefined 的键
