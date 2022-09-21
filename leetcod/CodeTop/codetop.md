@@ -86,3 +86,26 @@ var findKthLargest = function(nums, k) {
     return num
 };
 ```
+
+5. 最长回文子串
+
+```js
+var longestPalindrome = function(s) {
+    let max = ''
+    for(let i=0; i< s.length; i++) {
+        // 分奇偶， 一次遍历，每个字符位置都可能存在奇数或偶数回文
+        getMax(i, i)
+        getMax(i, i+1)
+    }
+    function getMax(l, r) {
+        // 向两边发散
+        while(l>=0 && r<s.length && s[l] === s[r]){
+            l--;
+            r++
+        }
+        let maxStr = s.slice(l+1, r+1-1)
+        if(maxStr.length > max.length) max = maxStr
+    }
+    return max
+};
+```
