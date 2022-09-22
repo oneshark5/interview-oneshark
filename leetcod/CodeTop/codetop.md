@@ -109,3 +109,24 @@ var longestPalindrome = function(s) {
     return max
 };
 ```
+
+141. 环形链表
+```js
+var hasCycle = function(head) {
+    // 快慢双指针双指针
+    let slow = fast = head;
+    while(fast && fast.next){
+        slow = slow.next;
+        fast = fast.next.next;
+        if(slow === fast){
+            let [index1, index2] = [head, fast]
+            while(index1 !== index2){
+                index1 = index1.next;
+                index2 = index2.next;
+            }
+            return index1 !== -Infinity
+        }
+    }
+    return  false
+};
+```
