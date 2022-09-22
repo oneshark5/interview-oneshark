@@ -130,3 +130,32 @@ var hasCycle = function(head) {
     return  false
 };
 ```
+
+142. 环形链表 II
+```js
+var detectCycle = function(head) {
+    // 题意：存在环，返回链表尾部所链接的位置，无则返回-1
+    // 思路：采用两次双指针，判断是否有环，判断环的入口
+    /**
+    1. 是否有环，快慢双指针
+    2. 环的入口，双指针，一个指向头节点，一个指向相遇节点
+     */
+    // 重点：判断的环的入口比较难想
+    // 快慢双指针
+    let slow = fast = head;
+    while(fast && fast.next){
+        slow = slow.next;
+        fast = fast.next.next;
+        if(slow === fast){
+            // 双指针
+            let [index1, index2] = [head, fast];
+            while(index1 !== index2){
+                index1 = index1.next;
+                index2 = index2.next;
+            }
+            return index1
+        }
+    }
+    return null
+};
+```
