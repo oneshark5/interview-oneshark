@@ -162,11 +162,43 @@ var detectCycle = function(head) {
 
 **[121. 买卖股票的最佳时机](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/)**
 
+方法一：for循环 模拟
 ```js
-/**
- * @param {number[]} prices
- * @return {number}
- */
+var maxProfit = function(prices) {
+    // 模拟
+    /**
+    思路：对最低价格minPrice和最大利润MaxProfit进行记录
+    如果当前价格prices[i]低于最低价格则替换：minPrice = prices[i]
+    否则，如果当前价格减去最低价格利润大于之前的最大利润则替换：prices[i] - minPrice > maxProfit --> maxProfit = prices[i] - minPrice
+     */
+    let minPrice = Infinity,
+        maxProfit = 0
+    for(let i=0; i<prices.length; i++){
+        if(prices[i] < minPrice){
+            minPrice = prices[i]
+        }else if(prices[i] - minPrice > maxProfit){
+            maxProfit = prices[i] - minPrice
+        }
+    }
+    return maxProfit
+};
+```
+
+方法二：贪心
+```js
+var maxProfit = function(prices) {
+    // 贪心：每次遍历要最低价格和最大利润
+    let minPrice = Infinity,
+        maxProfit = 0;
+    for(let i=0; i<prices.length; i++){
+        minPrice = Math.min(prices[i], minPrice)
+        maxProfit = Math.max(prices[i] - minPrice, maxProfit)
+    }
+    return maxProfit
+};
+```
+方法三：动态规划
+```js
 var maxProfit = function(prices) {
     // // 动态规划
     /**
