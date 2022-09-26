@@ -159,3 +159,36 @@ var detectCycle = function(head) {
     return null
 };
 ```
+
+**[121. 买卖股票的最佳时机](https://leetcode.cn/problems/best-time-to-buy-and-sell-stock/)**
+
+```js
+/**
+ * @param {number[]} prices
+ * @return {number}
+ */
+var maxProfit = function(prices) {
+    // // 动态规划
+    /**
+    思路：持有不持有两种状态
+    dp[i][0] 表示第i天持有股票的利润
+    dp[i][1] 表示第i天未持有股票的利润
+
+    持有股票的状态：
+    可能前一天已经买入dp[i-1][0]，也可能今日买入-prices[i]
+    未持有股票的状态：
+    可能是前一天已经卖出dp[i-1][1]，也可能今日卖出dp[i-1] + prices[i]
+     */
+    const len = prices.length
+    const dp = new Array(len).fill(0).map(() => new Array(2).fill(0))
+    // 初始化
+    dp[0][0] = -prices[0]
+    dp[0][1] = 0
+    for(let i=1; i<len; i++){
+        dp[i][0] = Math.max(dp[i-1][0], -prices[i])// 持有
+        dp[i][1] = Math.max(dp[i-1][1], dp[i-1][0] + prices[i])
+    }
+    return dp[len-1][1]
+};
+```
+
