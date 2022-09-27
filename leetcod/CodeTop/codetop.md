@@ -224,3 +224,25 @@ var maxProfit = function(prices) {
 };
 ```
 
+**[129. 求根节点到叶节点数字之和](https://leetcode.cn/problems/sum-root-to-leaf-numbers/)**
+
+```js
+var sumNumbers = function(root) {
+    // 二叉树路径数的延申
+    // 中序遍历，当到达叶子节点，则记录所组成的数字
+    const res = []
+    const dfs = (root, path) => {
+        path += root.val
+        root.left && dfs(root.left, path)
+        root.right && dfs(root.right, path)
+        if(!root.left && !root.right){
+            res.push(path)
+            path = ''
+        }
+    }
+    dfs(root, '')
+    let sum = res.reduce((prev, cur) => Number(prev) + Number(cur))
+    return sum
+};
+```
+
