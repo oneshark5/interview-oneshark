@@ -246,3 +246,25 @@ var sumNumbers = function(root) {
 };
 ```
 
+**[剑指 Offer 10- I. 斐波那契数列](https://leetcode.cn/problems/fei-bo-na-qi-shu-lie-lcof/)**
+
+```js
+var fib = function(n) {
+    // // dp[i] 表示第 i 项，斐波那契数为dp[i]
+    // if(n <= 1) return n
+    // const dp = [0, 1]
+    // for(let i=2; i<=n; i++){
+    //     dp[i] = (dp[i - 1] + dp[i - 2]) % 1000000007;
+    // }
+    // return dp[n]
+
+    // 终止条件、dp初始化、遍历
+    if(n <= 1) return n
+    const dp = [0, 1]
+    for(let i=2; i<=n; i++){
+        dp[i] = (dp[i-1] + dp[i-2]) % 1000000007;
+    }
+    return dp[n]
+};
+```
+
