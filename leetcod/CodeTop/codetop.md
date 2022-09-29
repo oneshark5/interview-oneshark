@@ -268,3 +268,86 @@ var fib = function(n) {
 };
 ```
 
+**[912. 排序数组](https://leetcode.cn/problems/sort-an-array/)**
+
+```js
+var sortArray = function(nums) {
+    // ⭐⭐⭐练习各种排序🤭⭐⭐⭐
+    // 快速排序：选择基准元素，比基准小前面，比基准大的放后面
+    const quickSort = (arr) => {
+        if(arr.length <= 1) return arr
+        const left = []
+        const right = []
+        const mid = arr[0] // 选择第一个元素作为基准
+        for(let i=1; i<arr.length; i++){
+            if(arr[i] < mid) left.push(arr[i])
+            else right.push(arr[i])
+        }
+        return [...quickSort(left), mid, ...quickSort(right)]
+    }
+    return quickSort(nums)
+};
+```
+
+
+
+**[200. 岛屿数量](https://leetcode.cn/problems/number-of-islands/)**
+
+```js
+var numIslands = function(grid) {
+    // 深度优先搜索，参考🐦飞鸟
+    const dfs = (i, j) => {
+        if(i<0 || i>=m || j<0 || j>=n || grid[i][j] === '0') return
+        // 访问过的地方，标记为 0
+        grid[i][j] = '0';
+        // 四个方向继续访问
+        dfs(i + 1, j);
+        dfs(i, j + 1);
+        dfs(i - 1, j);
+        dfs(i, j - 1);
+    }
+    const m = grid.length;
+    const n = grid[0].length;
+    let res = 0
+    for(let i=0; i<m; i++){
+        for(let j=0; j<n; j++){
+            if(grid[i][j] === '1'){
+                dfs(i, j)
+                res++
+            }
+        }
+    }
+    return res
+};
+// const numIslands = grid => {
+//     // 定义深度优先遍历函数
+//     const dfs = (i, j) => {
+//         // 越界、遇到水，则不访问了
+//         if (i < 0 || i >= m || j < 0 || j >= n || grid[i][j] === '0') return;
+//         // 访问过的的地方，标记为0
+//         grid[i][j] = '0';
+//         // 四个方向继续访问
+//         dfs(i + 1, j);
+//         dfs(i, j + 1);
+//         dfs(i - 1, j);
+//         dfs(i, j - 1);
+//     };
+//     // 矩阵的行、列
+//     const m = grid.length;
+//     const n = grid[0].length;
+//     let res = 0;
+//     for (let i = 0; i < m; i++) {
+//         for (let j = 0; j < n; j++) {
+//             // 找到矩阵中，为1的地方，开始深度优先遍历
+//             if (grid[i][j] === '1') {
+//                 dfs(i, j);
+//                 // 每遍历完一整趟，会把相连的所有1，变成0
+//                 // 代表访问完了一个岛屿，res++
+//                 res++;
+//             }
+//         }
+//     }
+//     return res;
+// };
+```
+
