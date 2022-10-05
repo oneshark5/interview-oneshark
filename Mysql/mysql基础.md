@@ -1,6 +1,62 @@
 # Mysql 基础
 
-## DQL Data Query Language
+## 一、DQL Data Query Language
+
+### 1.1 **基础查询**
+
+语法：`select 查询列表 from 表名；`
+
+查询列表可以是：表中的字段、常量、表达式、函数
+查询的结果是一个虚拟的表格
+
+1. 查询表中的单个字段
+  例：select last_name from employees；
+
+2. 查询表中的多个字段
+  例：select last_name，salary from employees；
+
+3. 查询表中的所有字段
+  例： select * from 表名；
+
+4. 查询常量值
+  例：select 100；/ select ‘john’;
+
+5. 查询表达式
+  例：select 100*98;
+
+6. 查询函数
+  例：select version();
+
+7. 起别名
+  好处：便于理解、如果要查询的字段有重名情况，使用别名区分
+  用AS：select 10098 *as** 结果；
+  省略AS：select last_name 姓；
+  别名中有关键字，加引号，例：select salary as 'out put' from employees；
+
+8. 去重
+  例：查询员工表中所有部门编号select DISTINCT department_id from employees;
+
+9. +号的作用
+  仅有一个功能，运算符。
+
+  ```mysql
+    例：select 100+90；//190  两个操作数都为数值型，加法运算。
+    例：select '100'+90；//190 其中一个为字符型，试图将字符型转换成数值型，如果转换成功，继续做加法运算。如果失败，将字符型数值转换成0。 
+    例：select 'a'+90；//90
+    例：select null+10；//null 其中一方为null，结果为null。
+    例：查询员工名和姓，并显示为 姓名。
+    select last_name+first_name as 姓名 from employees;//错误方式，输出0
+  ```
+
+  如要拼接，使用**concat()**。
+
+  ```mysql
+  select CONCAT( last_name,first_name) as 姓名 from employees;//正确方式
+  ```
+
+  **如concat中有某列存在null值，结果为null。**
+  可使用**IFNULL**（列名，为null时默认值），不为null时返回原本值。
+  **ISNULL** 判断结果，为true返回1，false返回0。
 
 排序查询
 
