@@ -10,34 +10,34 @@
 查询的结果是一个虚拟的表格
 
 1. 查询表中的单个字段
-  例：select last_name from employees；
+    例：select last_name from employees；
 
 2. 查询表中的多个字段
-  例：select last_name，salary from employees；
+    例：select last_name，salary from employees；
 
 3. 查询表中的所有字段
-  例： select * from 表名；
+    例： select * from 表名；
 
 4. 查询常量值
-  例：select 100；/ select ‘john’;
+    例：select 100；/ select ‘john’;
 
 5. 查询表达式
-  例：select 100*98;
+    例：select 100*98;
 
 6. 查询函数
-  例：select version();
+    例：select version();
 
 7. 起别名
-  好处：便于理解、如果要查询的字段有重名情况，使用别名区分
-  用AS：select 10098 *as** 结果；
-  省略AS：select last_name 姓；
-  别名中有关键字，加引号，例：select salary as 'out put' from employees；
+    好处：便于理解、如果要查询的字段有重名情况，使用别名区分
+    用AS：select 10098 *as** 结果；
+    省略AS：select last_name 姓；
+    别名中有关键字，加引号，例：select salary as 'out put' from employees；
 
 8. 去重
-  例：查询员工表中所有部门编号select DISTINCT department_id from employees;
+    例：查询员工表中所有部门编号select DISTINCT department_id from employees;
 
 9. +号的作用
-  仅有一个功能，运算符。
+    仅有一个功能，运算符。
 
   ```mysql
     例：select 100+90；//190  两个操作数都为数值型，加法运算。
@@ -478,6 +478,25 @@ sql92和sql99比较
     ③如果要删除的表中有自增长列，如果用delete删除后再插入[数据]()，值从断点开始，而truncate删除后再插入[数据]()，值从1开始。
     ④truncate删除没有返回值，delete有。
     ⑤truncate不能回滚，delete可以。  
+
+### Mysql 正则表达式
+
+以下是模式的表格，其可以连同REGEXP运算符使用。
+
+| 模式       | 什么样的模式匹配                  |
+| ---------- | --------------------------------- |
+| ^          | 开始的一个字符串                  |
+| $          | 结束的一个字符串                  |
+| .          | 任意单个字符                      |
+| [...]      | 方括号中列出的任何字符            |
+| [^...]     | 任何字符方括号之间不会被列出      |
+| p1\|p2\|p3 | 交替;匹配的任何模式 p1, p2, 或 p3 |
+| *          | 前一个元素的零个或多个实例        |
+| +          | 前面元素的一或多个实例            |
+| {n}        | 前一个元素的n个实例               |
+| {m,n}      | 前一个元素的 m 到 n 个实例        |
+
+
 
 ## 三、DDL Data Define Language
 
