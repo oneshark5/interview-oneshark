@@ -1,0 +1,14 @@
+@charset "UTF-8";
+input:valid ~ button {
+  pointer-events: all;
+  cursor: pointer;
+}
+input:valid ~ button::after {
+  content: "提交👍";
+}
+input:invalid ~ button {
+  pointer-events: none;
+}
+input:invalid ~ button::after {
+  content: "未通过验证😒";
+}/*# sourceMappingURL=formValid.css.map */

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<link href="formValid.css" rel="stylesheet" type="text/css" />
+<!-- 
+  原理
+表单元素中，有一个pattern属性，可以自定义正则表达式（如手机号、邮箱、身份证..）；
+valid伪类，可以匹配通过pattern验证的元素；
+invalid伪类则相反，可以匹配未通过pattern验证的元素；
+ -->
+<body>
+  <!-- section 标签 定义文档的某个区域 -->
+  <!-- pattern检查控件值的正则表达式，pattern 必须匹配整个值，而不仅仅是某些子集。 -->
+  <section class="container">
+    <input type="text" name="tel" placeholder="请输入手机号" pattern="^1[3456789]\d{9}$" required> <!-- {n}匹配次数 -->
+    <input type="text" name="smscode" placeholder="请输入验证码" pattern="\d{4}" required>
+    <button type="submit"/>
+  </section>
+</body>
+</html>

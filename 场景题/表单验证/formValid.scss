@@ -1,0 +1,24 @@
+input {
+  // 验证通过时按钮的样式
+  &:valid {
+    &~button {
+      pointer-events: all;
+      cursor: pointer;
+
+      &::after {
+        content: "提交👍"
+      }
+    }
+  }
+
+  // 验证不通过时按钮的样式
+  &:invalid {
+    &~button {
+      pointer-events: none; // 去除点击事件，让按钮无法点击（无法阻止键盘focus再回车触发）
+
+      &::after {
+        content: "未通过验证😒"
+      }
+    }
+  }
+}
