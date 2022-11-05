@@ -587,10 +587,6 @@ create table 目标表名 select * from 源表名 where 复制条件
 
 ### 3.4 常见的数据类型
 
-  作者：是瑶瑶公主呀
-链接：<https://www.nowcoder.com/discuss/353707>
-来源：牛客网
-
 **一 . 数值型**：
  **整形**
  默认有符号 设置无符号用**unsigned** 零填充**zerofill**（默认无符号）
