@@ -6,7 +6,7 @@
 
 语法：`select 查询列表 from 表名；`
 
-查询列表可以是：表中的字段、常量、表达式、函数
+查询列表可以是：表中的字段、常量、表达式、函数。
 查询的结果是一个虚拟的表格
 
 1. 查询表中的单个字段
@@ -29,12 +29,14 @@
 
 7. 起别名
     好处：便于理解、如果要查询的字段有重名情况，使用别名区分
-    用AS：select 10098 *as** 结果；
+    用AS：select 10098 **as** 结果；
     省略AS：select last_name 姓；
     别名中有关键字，加引号，例：select salary as 'out put' from employees；
 
 8. 去重
-    例：查询员工表中所有部门编号select DISTINCT department_id from employees;
+    例：查询员工表中所有部门编号
+
+    `select DISTINCT department_id from employees;`
 
 9. +号的作用
     仅有一个功能，运算符。
@@ -66,7 +68,7 @@
    SELECT last_name,salary*12*(1+IFNULL(commission_pct,0)) AS 年薪 FROM employees ORDER BY 年薪;
   ```
 
-常见函数
+### 1.4常见函数
 
 调用：select 函数名(实参列表) from 表名
 
@@ -165,7 +167,7 @@
   ⑤**count()** 求非空个数count(*)/count(常量值) 统计总行数MYISAM存储引擎下，count(*)效率高，INNODB下差不多sum和avg对数值型处理，min和max可对字符型和日期型[排序]()所有分组函数都忽略null值，可和distinct（去重）搭配使用
   和分组函数一同查询的字段要求是group by后的字段；
 
-分组查询
+### 1.5分组查询
 
 语法：
 
@@ -249,17 +251,34 @@ on 连接条件
      INNER JOIN employees e2 ON e1.`manager_id`=e2.`employee_id`
      ```
 
+     🦈内连接分为等值连接、非等值连接和自然连接，其中等值连接、非等值连接直接在`where`后面添加等值/非等值条件就可以，自然连接在`INNER JOIN ... ＯＮ`后面添加条件。　 
+
 2. **外连接**：
 
-   
+   用于查询一个表中有，另一个表中没有的记录
+   特点：外连接查询的结果为主表中的所有记录，如果从表有和他匹配的则显示匹配的值，若没有则显示null。外连接查询结果=内连接结果+主表有而从表没有的记录。
+   左外连接中left左边的是主表，右外连接right右边的是主表。
+   左外和右外交换顺序，可实现同样的效果  
 
 3. **左外连接**：left 【outer】
+
+   包含左边表的全部行（不管右边的表中是否存在与它们匹配的行），以及右边表中全部匹配的行----（🦈==主表的所有行和从表中匹配的行==）
+
+   例：查询哪个部门没有员工
+
+   ```MYSQL
+   SELECT d.*,e.`id` FROM departments d 
+   LEFT JOIN employees e ON d.`department_id`=e.`department_id`
+   WHERE e.`employee_id` IS NULL
+   ```
 
 4. **右外连接**：right【outer】
 
 5. **交叉连接**：cross【outer】
 
 6. **全外连接**：full【outer】
+
+   等于内连接的结果+表1中有表2中没有的+表2中有但表1中没有的
 
 图1 左外连接/内连接/右外连接
 
@@ -276,8 +295,7 @@ sql92和sql99比较
 
 子查询
 
-- **含义**：出现在其他语句中的select语句，称为子查询或内查询
-  外部的查询语句，称为主查询或外查询
+- **含义**：出现在其他语句中的select语句，称为子查询或内查询外部的查询语句，称为主查询或外查询。
 
 - **分类**：
 
@@ -533,6 +551,7 @@ drop database if exists 库名;
 
 **修改：**
 ①修改列名
+
 ```mysql
 alter table 表名  change [column] 旧列名 新列名 类型；
 ```
@@ -542,7 +561,7 @@ alter table 表名 modify column 列名 新类型
 ```
 ③添加列
 ```mysql
-alter table** 表名  **add cloumn** 列名 类型 **[first|after 字段名]**
+alter table 表名  add cloumn 列名 类型 [first|after 字段名]
 ```
 ④删除列
 ```mysql
@@ -564,7 +583,7 @@ drop table [if exists] 表名；
 仅复制表的结构
 
 ```mysql
-create table 目标表名 like 源表名
+create table 目标（新）表名 like 源表名
 ```
 
 仅复制表的部分结构
